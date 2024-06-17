@@ -5,6 +5,7 @@ import (
 	"log"
 	srv "my_project/project-common"
 	"my_project/project-common/logs"
+	_ "my_project/project-user/api"
 	"my_project/project-user/config"
 	"my_project/project-user/router"
 )
