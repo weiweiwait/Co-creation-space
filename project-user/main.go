@@ -5,6 +5,7 @@ import (
 	"log"
 	srv "my_project/project-common"
 	"my_project/project-common/logs"
+	"my_project/project-user/config"
 	"my_project/project-user/router"
 )
 
@@ -24,5 +25,5 @@ func main() {
 	}
 	//路由
 	router.InitRouter(r)
-	srv.Run(r, "project-user", ":8082")
+	srv.Run(r, config.C.SC.Name, config.C.SC.Addr)
 }
