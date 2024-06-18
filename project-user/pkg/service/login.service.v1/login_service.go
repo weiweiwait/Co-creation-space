@@ -6,9 +6,9 @@ import (
 	"go.uber.org/zap"
 	common "my_project/project-common"
 	"my_project/project-common/errs"
-	"my_project/project-user/pkg/dao"
+	"my_project/project-user/internal/dao"
+	"my_project/project-user/internal/repo"
 	"my_project/project-user/pkg/model"
-	"my_project/project-user/pkg/repo"
 	"time"
 )
 
