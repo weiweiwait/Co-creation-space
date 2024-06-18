@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	common "my_project/project-common"
 	"my_project/project-common/errs"
+	"my_project/project-grpc/user/login"
 	"my_project/project-user/internal/dao"
 	"my_project/project-user/internal/repo"
 	"my_project/project-user/pkg/model"
@@ -13,7 +14,7 @@ import (
 )
 
 type LoginService struct {
-	UnimplementedLoginServiceServer
+	login.UnimplementedLoginServiceServer
 	cache repo.Cache
 }
 
@@ -22,7 +23,7 @@ func New() *LoginService {
 		cache: dao.Rc,
 	}
 }
-func (ls *LoginService) GetCaptcha(ctx context.Context, msg *CaptchaMessage) (*CaptchaResponse, error) {
+func (ls *LoginService) GetCaptcha(ctx context.Context, msg *login.CaptchaMessage) (*login.CaptchaResponse, error) {
 	//1.获取参数
 	mobile := msg.Mobile
 	//2.校验参数
@@ -45,5 +46,5 @@ func (ls *LoginService) GetCaptcha(ctx context.Context, msg *CaptchaMessage) (*C
 			zap.L().Info(fmt.Sprintf("验证码存入redis出错,cause by: %v \n", err))
 		}
 	}()
-	return &CaptchaResponse{Code: code}, nil
+	return &login.CaptchaResponse{Code: code}, nil
 }
