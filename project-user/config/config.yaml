@@ -24,10 +24,10 @@ etcd:
 
 mysql:
   username: root
-  password: root
+  password: Fjw20030504
   host: 127.0.0.1
-  port: 3309
-  db: msproject
+  port: 3306
+  db: ms_project
 jwt:
   accessExp: 7
   refreshExp: 14

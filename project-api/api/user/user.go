@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/copier"
 	"my_project/project-api/pkg/model/user"
 	common "my_project/project-common"
 	"my_project/project-common/errs"
@@ -46,8 +47,15 @@ func (u *HandlerUser) register(c *gin.Context) {
 		c.JSON(http.StatusOK, result.Fail(http.StatusBadRequest, err.Error()))
 		return
 	}
-	//3.调用user grpc服务 获取响应
-	//err := LoginServiceClient.Register()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &login.RegisterMessage{}
+	err = copier.Copy(msg, req)
+	if err != nil {
+		c.JSON(http.StatusOK, result.Fail(http.StatusBadRequest, "copy有误"))
+		return
+	}
+	_, err = LoginServiceClient.Register(ctx, msg)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Fail(code, msg))
