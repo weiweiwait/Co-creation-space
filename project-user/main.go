@@ -5,7 +5,6 @@ import (
 	"log"
 	srv "my_project/project-common"
 	"my_project/project-common/logs"
-	_ "my_project/project-user/api"
 	"my_project/project-user/config"
 	"my_project/project-user/router"
 )
@@ -26,5 +25,10 @@ func main() {
 	}
 	//路由
 	router.InitRouter(r)
-	srv.Run(r, config.C.SC.Name, config.C.SC.Addr)
+	//注册grpc服务
+	gc := router.RegisterGrpc()
+	stop := func() {
+		gc.Stop()
+	}
+	srv.Run(r, config.C.SC.Name, config.C.SC.Addr, stop)
 }

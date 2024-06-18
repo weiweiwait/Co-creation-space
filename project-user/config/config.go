@@ -36,7 +36,7 @@ type EtcdConfig struct {
 func InitConfig() *Config {
 	conf := &Config{viper: viper.New()}
 	workDir, _ := os.Getwd()
-	conf.viper.SetConfigName("app")
+	conf.viper.SetConfigName("config")
 	conf.viper.SetConfigType("yaml")
 	////conf.viper.AddConfigPath("/etc/ms_project/user")
 	conf.viper.AddConfigPath(workDir + "/project-user/config")
