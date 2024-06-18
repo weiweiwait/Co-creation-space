@@ -4,3 +4,4 @@
 {"level":"INFO","time":"2024-06-17T22:34:41.220+0800","caller":"user/user.go:28","msg":"成功 INFO"}
 {"level":"DEBUG","time":"2024-06-17T22:34:41.220+0800","caller":"user/user.go:29","msg":"成功 DEBUG"}
 {"level":"ERROR","time":"2024-06-17T22:34:41.220+0800","caller":"user/user.go:30","msg":"成功 ERROR"}
+{"level":"INFO","time":"2024-06-18T14:56:59.670+0800","caller":"login.service.v1/login_service.go:37","msg":"短信平台调用成功，发送短信"}
