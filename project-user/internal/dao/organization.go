@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"my_project/project-user/internal/data/organization"
+	"my_project/project-user/internal/database"
 	"my_project/project-user/internal/database/gorms"
 )
 
@@ -22,7 +23,7 @@ func NewOrganizationDao() *OrganizationDao {
 	}
 }
 
-func (o *OrganizationDao) SaveOrganization(ctx context.Context, org *organization.Organization) error {
-	//o.conn = conn.(*gorms.GormConn)
-	return o.conn.Session(ctx).Create(org).Error
+func (o *OrganizationDao) SaveOrganization(conn database.DbConn, ctx context.Context, org *organization.Organization) error {
+	o.conn = conn.(*gorms.GormConn)
+	return o.conn.Tx(ctx).Create(org).Error
 }

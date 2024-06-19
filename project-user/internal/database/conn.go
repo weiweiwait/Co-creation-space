@@ -1,4 +1,4 @@
-package tran
+package database
 
 type DbConn interface {
 	Begin()

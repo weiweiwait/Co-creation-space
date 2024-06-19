@@ -37,6 +37,8 @@ type GormConn struct {
 	tx *gorm.DB
 }
 
+//每次进行操作时，应该重新赋值
+
 func (g *GormConn) Begin() {
 	g.tx = GetDB().Begin()
 }
