@@ -37,11 +37,11 @@ func (p *HandlerProject) myProjectList(c *gin.Context) {
 	//1. 获取参数
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	memberIdStr, _ := c.Get("memberId")
-	memberId := memberIdStr.(int64)
+	memberId := c.GetInt64("memberId")
+	memberName := c.GetString("memberName")
 	page := &model.Page{}
 	page.Bind(c)
-	msg := &project.ProjectRpcMessage{MemberId: memberId, Page: page.Page, PageSize: page.PageSize}
+	msg := &project.ProjectRpcMessage{MemberId: memberId, MemberName: memberName, Page: page.Page, PageSize: page.PageSize}
 	myProjectResponse, err := ProjectServiceClient.FindProjectByMemId(ctx, msg)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)

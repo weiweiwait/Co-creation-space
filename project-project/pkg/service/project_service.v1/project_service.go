@@ -6,9 +6,11 @@ import (
 	"go.uber.org/zap"
 	"my_project/project-common/encrypts"
 	"my_project/project-common/errs"
+	"my_project/project-common/tms"
 	"my_project/project-grpc/project"
 	"my_project/project-project/internal/dao"
 	"my_project/project-project/internal/data/menu"
+	"my_project/project-project/internal/data/pro"
 	"my_project/project-project/internal/database/tran"
 	"my_project/project-project/internal/repo"
 	"my_project/project-project/pkg/model"
@@ -45,7 +47,7 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 	memberId := msg.MemberId
 	page := msg.Page
 	pageSize := msg.PageSize
-	pms, total, err := p.projectRepo.FindProjectByMemId(ctx, memberId, page, pageSize)
+	pms, total, err := p.projectRepo.FindProjectByMemId(ctx, memberId, "and deleted=0 ", page, pageSize)
 	if err != nil {
 		zap.L().Error("project FindProjectByMemId error", zap.Error(err))
 		return nil, errs.GrpcError(model.DBError)
@@ -56,7 +58,14 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 	var pmm []*project.ProjectMessage
 	copier.Copy(&pmm, pms)
 	for _, v := range pmm {
-		v.Code, _ = encrypts.EncryptInt64(v.Id, model.AESKey)
+		v.Code, _ = encrypts.EncryptInt64(v.ProjectCode, model.AESKey)
+		pam := pro.ToMap(pms)[v.Id]
+		v.AccessControlType = pam.GetAccessControlType()
+		v.OrganizationCode, _ = encrypts.EncryptInt64(pam.OrganizationCode, model.AESKey)
+		v.JoinTime = tms.FormatByMill(pam.JoinTime)
+		v.OwnerName = msg.MemberName
+		v.Order = int32(pam.Sort)
+		v.CreateTime = tms.FormatByMill(pam.CreateTime)
 	}
 	return &project.MyProjectResponse{Pm: pmm, Total: total}, nil
 }
