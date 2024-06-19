@@ -1,4 +1,4 @@
-package user
+package rpc
 
 import (
 	"google.golang.org/grpc"

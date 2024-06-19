@@ -26,7 +26,10 @@ func NewMemberDao() *MemberDao {
 		conn: gorms.New(),
 	}
 }
-
+func (m *MemberDao) FindMemberById(ctx context.Context, id int64) (mem *member.Member, err error) {
+	err = m.conn.Session(ctx).Where("id=?", id).First(&mem).Error
+	return
+}
 func (m *MemberDao) SaveMember(conn database.DbConn, ctx context.Context, mem *member.Member) error {
 	m.conn = conn.(*gorms.GormConn)
 	return m.conn.Tx(ctx).Create(mem).Error

@@ -10,3 +10,5 @@
 {"level":"INFO","time":"2024-06-19T12:28:55.801+0800","caller":"login.service.v1/login_service.go:51","msg":"短信平台调用成功，发送短信"}
 {"level":"ERROR","time":"2024-06-19T17:34:31.933+0800","caller":"project_service.v1/project_service.go:33","msg":"Index db FindMenus error","error":"Error 1146 (42S02): Table 'ms_project.ms_project_menu' doesn't exist"}
 {"level":"ERROR","time":"2024-06-19T17:36:30.355+0800","caller":"project_service.v1/project_service.go:33","msg":"Index db FindMenus error","error":"Error 1146 (42S02): Table 'ms_project.ms_project_menu' doesn't exist"}
+{"level":"ERROR","time":"2024-06-19T18:26:30.175+0800","caller":"login.service.v1/login_service.go:195","msg":"Login  TokenVerify error","error":"token contains an invalid number of segments"}
+{"level":"ERROR","time":"2024-06-19T18:27:36.232+0800","caller":"login.service.v1/login_service.go:195","msg":"Login  TokenVerify error","error":"signature is invalid"}
