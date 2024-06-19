@@ -36,3 +36,27 @@ CREATE TABLE `ms_project_member`  (
                                       PRIMARY KEY (`id`) USING BTREE,
                                       UNIQUE INDEX `unique`(`project_code`, `member_code`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 37 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '项目-成员表' ROW_FORMAT = COMPACT;
+CREATE TABLE `ms_project_collection`  (
+                                          `id` bigint(20) NOT NULL AUTO_INCREMENT,
+                                          `project_code` bigint(20) NULL DEFAULT 0 COMMENT '项目id',
+                                          `member_code` bigint(20)  NULL DEFAULT 0 COMMENT '成员id',
+                                          `create_time` bigint(20)  NULL DEFAULT 0 COMMENT '加入时间',
+                                          PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 46 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '项目-收藏表' ROW_FORMAT = COMPACT;
+CREATE TABLE `ms_project_menu`  (
+                                    `id` bigint(0) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                    `pid` bigint(0) UNSIGNED NOT NULL DEFAULT 0 COMMENT '父id',
+                                    `title` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+                                    `icon` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '菜单图标',
+                                    `url` varchar(400) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '链接',
+                                    `file_path` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件路径',
+                                    `params` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '链接参数',
+                                    `node` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '#' COMMENT '权限节点',
+                                    `sort` int(0) UNSIGNED NULL DEFAULT 0 COMMENT '菜单排序',
+                                    `status` tinyint(0) UNSIGNED NULL DEFAULT 1 COMMENT '状态(0:禁用,1:启用)',
+                                    `create_by` bigint(0) UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建人',
+                                    `is_inner` tinyint(1) NULL DEFAULT 0 COMMENT '是否内页',
+                                    `values` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '参数默认值',
+                                    `show_slider` tinyint(1) NULL DEFAULT 1 COMMENT '是否显示侧栏',
+                                    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 176 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '项目菜单表' ROW_FORMAT = DYNAMIC;

@@ -1,2 +1,4 @@
 {"level":"ERROR","time":"2024-06-17T22:34:37.460+0800","caller":"user/user.go:30","msg":"成功 ERROR"}
 {"level":"ERROR","time":"2024-06-17T22:34:41.220+0800","caller":"user/user.go:30","msg":"成功 ERROR"}
+{"level":"ERROR","time":"2024-06-19T17:34:31.933+0800","caller":"project_service.v1/project_service.go:33","msg":"Index db FindMenus error","error":"Error 1146 (42S02): Table 'ms_project.ms_project_menu' doesn't exist"}
+{"level":"ERROR","time":"2024-06-19T17:36:30.355+0800","caller":"project_service.v1/project_service.go:33","msg":"Index db FindMenus error","error":"Error 1146 (42S02): Table 'ms_project.ms_project_menu' doesn't exist"}
