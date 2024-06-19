@@ -10,6 +10,7 @@ import (
 	"my_project/project-common/encrypts"
 	"my_project/project-common/errs"
 	"my_project/project-common/jwts"
+	"my_project/project-common/tms"
 	"my_project/project-grpc/user/login"
 	"my_project/project-user/config"
 	"my_project/project-user/internal/dao"
@@ -157,6 +158,8 @@ func (ls *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*lo
 	memMsg := &login.MemberMessage{}
 	err = copier.Copy(memMsg, mem)
 	memMsg.Code, _ = encrypts.EncryptInt64(mem.Id, model.AESKey)
+	memMsg.LastLoginTime = tms.FormatByMill(mem.LastLoginTime)
+	memMsg.CreateTime = tms.FormatByMill(mem.CreateTime)
 	//2.根据用户id查组织
 	orgs, err := ls.organizationRepo.FindOrganizationByMemId(c, mem.Id)
 	if err != nil {
@@ -167,6 +170,12 @@ func (ls *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*lo
 	err = copier.Copy(&orgsMessage, orgs)
 	for _, v := range orgsMessage {
 		v.Code, _ = encrypts.EncryptInt64(v.Id, model.AESKey)
+		v.OwnerCode = memMsg.Code
+		o := organization.ToMap(orgs)[v.Id]
+		v.CreateTime = tms.FormatByMill(o.CreateTime)
+	}
+	if len(orgs) > 0 {
+		memMsg.OrganizationCode, _ = encrypts.EncryptInt64(orgs[0].Id, model.AESKey)
 	}
 	//3.用jwt生成token
 	memIdStr := strconv.FormatInt(mem.Id, 10)
@@ -179,6 +188,7 @@ func (ls *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*lo
 		AccessTokenExp: token.AccessExp,
 		TokenType:      "bearer",
 	}
+	//放入缓存 member orgs
 	return &login.LoginResponse{
 		Member:           memMsg,
 		OrganizationList: orgsMessage,
