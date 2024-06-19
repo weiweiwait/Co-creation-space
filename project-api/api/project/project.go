@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"my_project/project-api/pkg/model"
+	"my_project/project-api/pkg/model/menu"
 	"my_project/project-api/pkg/model/pro"
 	common "my_project/project-common"
 	"my_project/project-common/errs"
@@ -25,9 +26,11 @@ func (p *HandlerProject) index(c *gin.Context) {
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Fail(code, msg))
-		return
 	}
-	c.JSON(http.StatusOK, result.Success(indexResponse.Menus))
+	menus := indexResponse.Menus
+	var ms []*menu.Menu
+	copier.Copy(&ms, menus)
+	c.JSON(http.StatusOK, result.Success(ms))
 }
 func (p *HandlerProject) myProjectList(c *gin.Context) {
 	result := &common.Result{}
