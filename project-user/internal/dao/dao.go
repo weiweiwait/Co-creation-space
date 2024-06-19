@@ -10,6 +10,7 @@ type TransactionImpl struct {
 }
 
 func (t *TransactionImpl) Action(f func(conn database.DbConn) error) error {
+	//同一个事务结束后连接就没有了，所以每次得重新连接
 	t.conn.Begin()
 	err := f(t.conn)
 	if err != nil {

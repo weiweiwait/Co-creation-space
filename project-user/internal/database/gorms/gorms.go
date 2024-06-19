@@ -39,6 +39,8 @@ type GormConn struct {
 
 //每次进行操作时，应该重新赋值
 
+//select的db应该和事务分开，要不然就有影响1
+
 func (g *GormConn) Begin() {
 	g.tx = GetDB().Begin()
 }
