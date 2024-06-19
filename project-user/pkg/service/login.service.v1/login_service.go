@@ -207,3 +207,17 @@ func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage
 	memMsg.Code, _ = encrypts.EncryptInt64(memberById.Id, model.AESKey)
 	return &login.LoginResponse{Member: memMsg}, nil
 }
+func (l *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (*login.OrgListResponse, error) {
+	memId := msg.MemId
+	orgs, err := l.organizationRepo.FindOrganizationByMemId(ctx, memId)
+	if err != nil {
+		zap.L().Error("MyOrgList FindOrganizationByMemId err", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	var orgsMessage []*login.OrganizationMessage
+	err = copier.Copy(&orgsMessage, orgs)
+	for _, org := range orgsMessage {
+		org.Code, _ = encrypts.EncryptInt64(org.Id, model.AESKey)
+	}
+	return &login.OrgListResponse{OrganizationList: orgsMessage}, nil
+}

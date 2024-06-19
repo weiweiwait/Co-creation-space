@@ -98,3 +98,22 @@ func (u *HandlerUser) login(c *gin.Context) {
 	//4.返回结果
 	c.JSON(http.StatusOK, result.Success(rsp))
 }
+
+func (u *HandlerUser) myOrgList(c *gin.Context) {
+	result := &common.Result{}
+	memberIdStr, _ := c.Get("memberId")
+	memberId := memberIdStr.(int64)
+	list, err2 := rpc.LoginServiceClient.MyOrgList(context.Background(), &login.UserMessage{MemId: memberId})
+	if err2 != nil {
+		code, msg := errs.ParseGrpcError(err2)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+		return
+	}
+	if list.OrganizationList == nil {
+		c.JSON(http.StatusOK, result.Success([]*user.OrganizationList{}))
+		return
+	}
+	var orgs []*user.OrganizationList
+	copier.Copy(&orgs, list.OrganizationList)
+	c.JSON(http.StatusOK, result.Success(orgs))
+}
