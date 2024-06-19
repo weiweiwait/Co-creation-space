@@ -13,7 +13,7 @@ import (
 type HandlerProject struct {
 }
 
-func (p HandlerProject) index(c *gin.Context) {
+func (p *HandlerProject) index(c *gin.Context) {
 	result := &common.Result{}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
