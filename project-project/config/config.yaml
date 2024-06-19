@@ -15,7 +15,7 @@ redis:
   db: 0
 grpc:
   addr: "127.0.0.1:8882"
-  name: "user"
+  name: "project"
   version: "1.0.0"
   weight: 2
 etcd:

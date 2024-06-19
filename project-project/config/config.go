@@ -55,7 +55,7 @@ func InitConfig() *Config {
 	conf.viper.SetConfigName("config")
 	conf.viper.SetConfigType("yaml")
 	////conf.viper.AddConfigPath("/etc/ms_project/user")
-	conf.viper.AddConfigPath(workDir + "/project-user/config")
+	conf.viper.AddConfigPath(workDir + "/project-project/config")
 	////conf.viper.AddConfigPath(workDir)
 	// 添加当前工作目录到配置文件路径
 
