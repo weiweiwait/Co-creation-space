@@ -23,4 +23,7 @@ func (*RouterProject) Route(r *gin.Engine) {
 	group := r.Group("/project/index")
 	group.Use(midd.TokenVerify1())
 	group.POST("", h.index)
+	group1 := r.Group("/project/project")
+	group1.Use(midd.TokenVerify1())
+	group1.POST("/selfList", h.myProjectList)
 }
