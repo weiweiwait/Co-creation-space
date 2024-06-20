@@ -6,3 +6,4 @@
 {"level":"ERROR","time":"2024-06-19T18:27:36.232+0800","caller":"login.service.v1/login_service.go:195","msg":"Login  TokenVerify error","error":"signature is invalid"}
 {"level":"ERROR","time":"2024-06-19T20:25:38.250+0800","caller":"login.service.v1/login_service.go:195","msg":"Login  TokenVerify error","error":"token contains an invalid number of segments"}
 {"level":"ERROR","time":"2024-06-19T20:32:21.643+0800","caller":"login.service.v1/login_service.go:195","msg":"Login  TokenVerify error","error":"token contains an invalid number of segments"}
+{"level":"ERROR","time":"2024-06-20T14:07:52.039+0800","caller":"login.service.v1/login_service.go:205","msg":"Login  TokenVerify error","error":"token contains an invalid number of segments"}

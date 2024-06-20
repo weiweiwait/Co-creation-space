@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TokenVerify1() func(c *gin.Context) {
+func TokenVerify1() func(*gin.Context) {
 	return func(c *gin.Context) {
 		result := &common.Result{}
 		//1.从header中获取token
@@ -29,6 +29,7 @@ func TokenVerify1() func(c *gin.Context) {
 		//3.处理结果，认证通过 将信息放入gin的上下文 失败返回未登录
 		c.Set("memberId", response.Member.Id)
 		c.Set("memberName", response.Member.Name)
+		c.Set("organizationCode", response.Member.OrganizationCode)
 		c.Next()
 	}
 }

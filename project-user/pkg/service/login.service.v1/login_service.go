@@ -205,6 +205,8 @@ func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage
 		zap.L().Error("Login  TokenVerify error", zap.Error(err))
 		return nil, errs.GrpcError(model.NoLogin)
 	}
+	//从缓存中查询 如果没有 直接返回认证失败
+
 	//数据库查询 优化点 登录之后 应该把用户信息缓存起来
 	id, _ := strconv.ParseInt(parseToken, 10, 64)
 	memberById, err := ls.memberRepo.FindMemberById(context.Background(), id)
@@ -215,6 +217,15 @@ func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage
 	memMsg := &login.MemberMessage{}
 	copier.Copy(memMsg, memberById)
 	memMsg.Code, _ = encrypts.EncryptInt64(memberById.Id, model.AESKey)
+	orgs, err := ls.organizationRepo.FindOrganizationByMemId(context.Background(), memberById.Id)
+	if err != nil {
+		zap.L().Error("TokenVerify db FindMember error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	if len(orgs) > 0 {
+		memMsg.OrganizationCode, _ = encrypts.EncryptInt64(orgs[0].Id, model.AESKey)
+	}
+	memMsg.CreateTime = tms.FormatByMill(memberById.CreateTime)
 	return &login.LoginResponse{Member: memMsg}, nil
 }
 func (l *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (*login.OrgListResponse, error) {

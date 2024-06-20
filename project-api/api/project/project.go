@@ -11,6 +11,7 @@ import (
 	"my_project/project-common/errs"
 	"my_project/project-grpc/project"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -64,7 +65,45 @@ func (p *HandlerProject) myProjectList(c *gin.Context) {
 		"total": myProjectResponse.Total,
 	}))
 }
+func (p *HandlerProject) projectTemplate(c *gin.Context) {
+	result := &common.Result{}
+	//1. 获取参数
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	memberId := c.GetInt64("memberId")
+	memberName := c.GetString("memberName")
+	page := &model.Page{}
+	page.Bind(c)
+	viewTypeStr := c.PostForm("viewType")
+	viewType, _ := strconv.ParseInt(viewTypeStr, 10, 64)
+	msg := &project.ProjectRpcMessage{
+		MemberId:         memberId,
+		MemberName:       memberName,
+		ViewType:         int32(viewType),
+		Page:             page.Page,
+		PageSize:         page.PageSize,
+		OrganizationCode: c.GetString("organizationCode")}
+	templateResponse, err := ProjectServiceClient.FindProjectTemplate(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+	}
 
+	var pms []*pro.ProjectTemplate
+	copier.Copy(&pms, templateResponse.Ptm)
+	if pms == nil {
+		pms = []*pro.ProjectTemplate{}
+	}
+	for _, v := range pms {
+		if v.TaskStages == nil {
+			v.TaskStages = []*pro.TaskStagesOnlyName{}
+		}
+	}
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"list":  pms, //null nil -> []
+		"total": templateResponse.Total,
+	}))
+}
 func New() *HandlerProject {
 	return &HandlerProject{}
 }

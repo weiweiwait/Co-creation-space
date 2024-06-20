@@ -20,11 +20,10 @@ func (*RouterProject) Route(r *gin.Engine) {
 	//初始化grpc的客户端连接
 	InitRpcProjectClient()
 	h := New()
-	group := r.Group("/project/index")
+	group := r.Group("/project")
 	group.Use(midd.TokenVerify1())
-	group.POST("", h.index)
-	group1 := r.Group("/project/project")
-	group1.Use(midd.TokenVerify1())
-	group1.POST("/selfList", h.myProjectList)
-	group.POST("", h.myProjectList)
+	group.POST("/index", h.index)
+	group.POST("/project/selfList", h.myProjectList)
+	group.POST("/project", h.myProjectList)
+	group.POST("/project_template", h.projectTemplate)
 }
