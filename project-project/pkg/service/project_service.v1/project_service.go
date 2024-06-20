@@ -247,3 +247,15 @@ func (ps *ProjectService) FindProjectDetail(ctx context.Context, msg *project.Pr
 	detailMsg.CreateTime = tms.FormatByMill(projectAndMember.CreateTime)
 	return detailMsg, nil
 }
+func (ps *ProjectService) UpdateDeletedProject(ctx context.Context, msg *project.ProjectRpcMessage) (*project.DeletedProjectResponse, error) {
+	projectCodeStr, _ := encrypts.Decrypt(msg.ProjectCode, model.AESKey)
+	projectCode, _ := strconv.ParseInt(projectCodeStr, 10, 64)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	err := ps.projectRepo.UpdateDeletedProject(c, projectCode, msg.Deleted)
+	if err != nil {
+		zap.L().Error("project RecycleProject DeleteProject error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	return &project.DeletedProjectResponse{}, nil
+}
