@@ -48,6 +48,13 @@ type ProjectAndMember struct {
 	Collected   int    `json:"collected"`
 }
 
+type ProjectDetail struct {
+	Project
+	OwnerName   string `json:"owner_name"`
+	Collected   int    `json:"collected"`
+	OwnerAvatar string `json:"owner_avatar"`
+}
+
 type ProjectTemplate struct {
 	Id               int                   `json:"id"`
 	Name             string                `json:"name"`

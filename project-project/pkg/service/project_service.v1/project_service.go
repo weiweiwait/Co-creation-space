@@ -8,6 +8,7 @@ import (
 	"my_project/project-common/errs"
 	"my_project/project-common/tms"
 	"my_project/project-grpc/project"
+	"my_project/project-grpc/user/login"
 	"my_project/project-project/internal/dao"
 	"my_project/project-project/internal/data/menu"
 	"my_project/project-project/internal/data/pro"
@@ -15,6 +16,7 @@ import (
 	"my_project/project-project/internal/database"
 	"my_project/project-project/internal/database/tran"
 	"my_project/project-project/internal/repo"
+	"my_project/project-project/internal/rpc"
 	"my_project/project-project/pkg/model"
 	"strconv"
 	"time"
@@ -202,4 +204,46 @@ func (ps *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectR
 		TaskBoardTheme:   pr.TaskBoardTheme,
 	}
 	return rsp, nil
+}
+
+// 1. 查项目表
+// 2. 项目和成员的关联表 查到项目的拥有者 去member表查名字
+// 3. 查收藏表 判断收藏状态
+func (ps *ProjectService) FindProjectDetail(ctx context.Context, msg *project.ProjectRpcMessage) (*project.ProjectDetailMessage, error) {
+	projectCodeStr, _ := encrypts.Decrypt(msg.ProjectCode, model.AESKey)
+	projectCode, _ := strconv.ParseInt(projectCodeStr, 10, 64)
+	memberId := msg.MemberId
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	projectAndMember, err := ps.projectRepo.FindProjectByPIdAndMemId(c, projectCode, memberId)
+	if err != nil {
+		zap.L().Error("project FindProjectDetail FindProjectByPIdAndMemId error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	ownerId := projectAndMember.IsOwner
+	member, err := rpc.LoginServiceClient.FindMemInfoById(c, &login.UserMessage{MemId: ownerId})
+	if err != nil {
+		zap.L().Error("project rpc FindProjectDetail FindMemInfoById error", zap.Error(err))
+		return nil, err
+	}
+	//去user模块去找了
+	//TODO 优化 收藏的时候 可以放入redis
+	isCollect, err := ps.projectRepo.FindCollectByPidAndMemId(c, projectCode, memberId)
+	if err != nil {
+		zap.L().Error("project FindProjectDetail FindCollectByPidAndMemId error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	if isCollect {
+		projectAndMember.Collected = model.Collected
+	}
+	var detailMsg = &project.ProjectDetailMessage{}
+	copier.Copy(detailMsg, projectAndMember)
+	detailMsg.OwnerAvatar = member.Avatar
+	detailMsg.OwnerName = member.Name
+	detailMsg.Code, _ = encrypts.EncryptInt64(projectAndMember.Id, model.AESKey)
+	detailMsg.AccessControlType = projectAndMember.GetAccessControlType()
+	detailMsg.OrganizationCode, _ = encrypts.EncryptInt64(projectAndMember.OrganizationCode, model.AESKey)
+	detailMsg.Order = int32(projectAndMember.Sort)
+	detailMsg.CreateTime = tms.FormatByMill(projectAndMember.CreateTime)
+	return detailMsg, nil
 }
