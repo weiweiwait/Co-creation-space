@@ -5,3 +5,8 @@ var (
 	Personal int32 = 1
 )
 var AESKey = "sdfgyrhgbxcdgryfhgywertd"
+
+const (
+	NoCollected = iota
+	Collected
+)

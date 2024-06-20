@@ -47,7 +47,40 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 	memberId := msg.MemberId
 	page := msg.Page
 	pageSize := msg.PageSize
-	pms, total, err := p.projectRepo.FindProjectByMemId(ctx, memberId, "and deleted=0 ", page, pageSize)
+	var pms []*pro.ProjectAndMember
+	var total int64
+	var err error
+	if msg.SelectBy == "" || msg.SelectBy == "my" {
+		pms, total, err = p.projectRepo.FindProjectByMemId(ctx, memberId, "and deleted=0 ", page, pageSize)
+	}
+	if msg.SelectBy == "archive" {
+		pms, total, err = p.projectRepo.FindProjectByMemId(ctx, memberId, "and archive=1 ", page, pageSize)
+	}
+	if msg.SelectBy == "deleted" {
+		pms, total, err = p.projectRepo.FindProjectByMemId(ctx, memberId, "and deleted=1 ", page, pageSize)
+	}
+	//收藏
+	if msg.SelectBy == "collect" {
+		pms, total, err = p.projectRepo.FindCollectProjectByMemId(ctx, memberId, page, pageSize)
+		for _, v := range pms {
+			v.Collected = model.Collected
+		}
+	} else {
+		collectPms, _, err := p.projectRepo.FindCollectProjectByMemId(ctx, memberId, page, pageSize)
+		if err != nil {
+			zap.L().Error("project FindProjectByMemId::FindCollectProjectByMemId error", zap.Error(err))
+			return nil, errs.GrpcError(model.DBError)
+		}
+		var cMap = make(map[int64]*pro.ProjectAndMember)
+		for _, v := range collectPms {
+			cMap[v.Id] = v
+		}
+		for _, v := range pms {
+			if cMap[v.ProjectCode] != nil {
+				v.Collected = model.Collected
+			}
+		}
+	}
 	if err != nil {
 		zap.L().Error("project FindProjectByMemId error", zap.Error(err))
 		return nil, errs.GrpcError(model.DBError)
@@ -55,6 +88,7 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 	if pms == nil {
 		return &project.MyProjectResponse{Pm: []*project.ProjectMessage{}, Total: total}, nil
 	}
+
 	var pmm []*project.ProjectMessage
 	copier.Copy(&pmm, pms)
 	for _, v := range pmm {

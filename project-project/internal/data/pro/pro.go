@@ -44,6 +44,17 @@ func (*ProjectMember) TableName() string {
 	return "ms_project_member"
 }
 
+type ProjectCollection struct {
+	Id          int64
+	ProjectCode int64
+	MemberCode  int64
+	CreateTime  int64
+}
+
+func (*ProjectCollection) TableName() string {
+	return "ms_project_collection"
+}
+
 type ProjectAndMember struct {
 	Project
 	ProjectCode int64
@@ -51,6 +62,8 @@ type ProjectAndMember struct {
 	JoinTime    int64
 	IsOwner     int64
 	Authorize   string
+	OwnerName   string
+	Collected   int
 }
 
 func (m *ProjectAndMember) GetAccessControlType() string {
