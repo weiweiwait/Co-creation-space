@@ -185,6 +185,24 @@ func (p *HandlerProject) collectProject(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success([]int{}))
 }
+func (p *HandlerProject) editProject(c *gin.Context) {
+	result := &common.Result{}
+	var req *pro.ProjectReq
+	_ = c.ShouldBind(&req)
+	memberId := c.GetInt64("memberId")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &project.UpdateProjectMessage{}
+	copier.Copy(msg, req)
+	msg.MemberId = memberId
+	_, err := ProjectServiceClient.UpdateProject(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+	}
+	c.JSON(http.StatusOK, result.Success([]int{}))
+}
+
 func New() *HandlerProject {
 	return &HandlerProject{}
 }
