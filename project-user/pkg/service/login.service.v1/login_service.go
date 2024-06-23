@@ -248,6 +248,7 @@ func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage
 	return &login.LoginResponse{Member: memMsg}, nil
 }
 func (l *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (*login.OrgListResponse, error) {
+	fmt.Println("MyOrgList")
 	memId := msg.MemId
 	orgs, err := l.organizationRepo.FindOrganizationByMemId(ctx, memId)
 	if err != nil {

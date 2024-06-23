@@ -17,3 +17,5 @@
 {"level":"ERROR","time":"2024-06-23T18:43:27.130+0800","caller":"login.service.v1/login_service.go:218","msg":"TokenVerify cache get member error","error":"redis: nil"}
 {"level":"INFO","time":"2024-06-23T18:44:48.254+0800","caller":"interceptor/cache.go:53","msg":"/login.service.v1.LoginService/MyOrgList 放入缓存"}
 {"level":"ERROR","time":"2024-06-23T18:49:40.468+0800","caller":"login.service.v1/login_service.go:212","msg":"Login  TokenVerify error","error":"token contains an invalid number of segments"}
+{"level":"INFO","time":"2024-06-23T18:58:54.032+0800","caller":"interceptor/cache.go:53","msg":"/login.service.v1.LoginService/MyOrgList 放入缓存"}
+{"level":"INFO","time":"2024-06-23T18:59:04.159+0800","caller":"interceptor/cache.go:47","msg":"/login.service.v1.LoginService/MyOrgList 走了缓存"}
