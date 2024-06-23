@@ -168,6 +168,42 @@ func (t *HandlerTask) taskSort(c *gin.Context) {
 	c.JSON(http.StatusOK, result.Success([]int{}))
 }
 
+func (t *HandlerTask) myTaskList(c *gin.Context) {
+	result := &common.Result{}
+	var req *tasks.MyTaskReq
+	c.ShouldBind(&req)
+	memberId := c.GetInt64("memberId")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &task.TaskReqMessage{
+		MemberId: memberId,
+		TaskType: int32(req.TaskType),
+		Type:     int32(req.Type),
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}
+	myTaskListResponse, err := TaskServiceClient.MyTaskList(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+	}
+	var myTaskList []*tasks.MyTaskDisplay
+	copier.Copy(&myTaskList, myTaskListResponse.List)
+	if myTaskList == nil {
+		myTaskList = []*tasks.MyTaskDisplay{}
+	}
+	for _, v := range myTaskList {
+		v.ProjectInfo = tasks.ProjectInfo{
+			Name: v.ProjectName,
+			Code: v.ProjectCode,
+		}
+	}
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"list":  myTaskList,
+		"total": myTaskListResponse.Total,
+	}))
+}
+
 func NewTask() *HandlerTask {
 	return &HandlerTask{}
 }

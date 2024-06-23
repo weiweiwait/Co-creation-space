@@ -310,3 +310,63 @@ func (t *TaskService) resetSort(stageCode int64) error {
 	})
 
 }
+
+func (t *TaskService) MyTaskList(ctx context.Context, msg *task.TaskReqMessage) (*task.MyTaskListResponse, error) {
+	var tsList []*data.Task
+	var err error
+	var total int64
+	if msg.TaskType == 1 {
+		//我执行的
+		tsList, total, err = t.taskRepo.FindTaskByAssignTo(ctx, msg.MemberId, int(msg.Type), msg.Page, msg.PageSize)
+		if err != nil {
+			zap.L().Error("project task MyTaskList taskRepo.FindTaskByAssignTo error", zap.Error(err))
+			return nil, errs.GrpcError(model.DBError)
+		}
+	}
+	if msg.TaskType == 2 {
+		//我参与的
+		tsList, total, err = t.taskRepo.FindTaskByMemberCode(ctx, msg.MemberId, int(msg.Type), msg.Page, msg.PageSize)
+		if err != nil {
+			zap.L().Error("project task MyTaskList taskRepo.FindTaskByMemberCode error", zap.Error(err))
+			return nil, errs.GrpcError(model.DBError)
+		}
+	}
+	if msg.TaskType == 3 {
+		//我创建的
+		tsList, total, err = t.taskRepo.FindTaskByCreateBy(ctx, msg.MemberId, int(msg.Type), msg.Page, msg.PageSize)
+		if err != nil {
+			zap.L().Error("project task MyTaskList taskRepo.FindTaskByCreateBy error", zap.Error(err))
+			return nil, errs.GrpcError(model.DBError)
+		}
+	}
+	if tsList == nil || len(tsList) <= 0 {
+		return &task.MyTaskListResponse{List: nil, Total: 0}, nil
+	}
+	var pids []int64
+	var mids []int64
+	for _, v := range tsList {
+		pids = append(pids, v.ProjectCode)
+		mids = append(mids, v.AssignTo)
+	}
+	pList, err := t.projectRepo.FindProjectByIds(ctx, pids)
+	projectMap := data.ToProjectMap(pList)
+
+	mList, err := rpc.LoginServiceClient.FindMemInfoByIds(ctx, &login.UserMessage{
+		MIds: mids,
+	})
+	mMap := make(map[int64]*login.MemberMessage)
+	for _, v := range mList.List {
+		mMap[v.Id] = v
+	}
+	var mtdList []*data.MyTaskDisplay
+	for _, v := range tsList {
+		memberMessage := mMap[v.AssignTo]
+		name := memberMessage.Name
+		avatar := memberMessage.Avatar
+		mtd := v.ToMyTaskDisplay(projectMap[v.ProjectCode], name, avatar)
+		mtdList = append(mtdList, mtd)
+	}
+	var myMsgs []*task.MyTaskMessage
+	copier.Copy(&myMsgs, mtdList)
+	return &task.MyTaskListResponse{List: myMsgs, Total: total}, nil
+}
