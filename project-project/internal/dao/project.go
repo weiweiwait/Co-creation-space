@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"fmt"
+	"gorm.io/gorm"
 	"my_project/project-project/internal/data"
 	"my_project/project-project/internal/database"
 	"my_project/project-project/internal/database/gorms"
@@ -10,6 +11,31 @@ import (
 
 type ProjectDao struct {
 	conn *gorms.GormConn
+}
+
+func (p *ProjectDao) FindProjectByIds(ctx context.Context, pids []int64) (list []*data.Project, err error) {
+	session := p.conn.Session(ctx)
+	err = session.Model(&data.Project{}).Where("id in (?)", pids).Find(&list).Error
+	return
+}
+
+func (p *ProjectDao) FindProjectById(ctx context.Context, projectCode int64) (pj *data.Project, err error) {
+	err = p.conn.Session(ctx).Where("id=?", projectCode).Find(&pj).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return
+}
+
+func (p *ProjectDao) FindProjectMemberByPid(ctx context.Context, projectCode int64) (list []*data.ProjectMember, total int64, err error) {
+	session := p.conn.Session(ctx)
+	err = session.Model(&data.ProjectMember{}).
+		Where("project_code=?", projectCode).
+		Find(&list).Error
+	err = session.Model(&data.ProjectMember{}).
+		Where("project_code=?", projectCode).
+		Count(&total).Error
+	return
 }
 
 func (p *ProjectDao) UpdateProject(ctx context.Context, proj *data.Project) error {
