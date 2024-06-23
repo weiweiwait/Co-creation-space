@@ -1,10 +1,11 @@
 package model
 
-var (
+const (
 	Normal         = 1
 	Personal int32 = 1
 )
-var AESKey = "sdfgyrhgbxcdgryfhgywertd"
+
+const AESKey = "sdfgyrhgbxcdgryfhgywertd"
 
 const (
 	NoDeleted = iota
@@ -30,4 +31,23 @@ const (
 const (
 	NoCollected = iota
 	Collected
+)
+
+const (
+	NoOwner = iota
+	Owner
+)
+
+const (
+	NoExecutor = iota
+	Executor
+)
+const (
+	NoCanRead = iota
+	CanRead
+)
+
+const (
+	UnDone = iota
+	Done
 )
