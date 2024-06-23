@@ -262,23 +262,26 @@ func (l *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (*
 	}
 	return &login.OrgListResponse{OrganizationList: orgsMessage}, nil
 }
-func (ls *LoginService) FindMemInfoById(ctx context.Context, msg *login.UserMessage) (*login.MemberMessage, error) {
-	memberById, err := ls.memberRepo.FindMemberById(context.Background(), msg.MemId)
+func (ls *LoginService) FindMemInfoByIds(ctx context.Context, msg *login.UserMessage) (*login.MemberMessageList, error) {
+	memberList, err := ls.memberRepo.FindMemberByIds(context.Background(), msg.MIds)
 	if err != nil {
-		zap.L().Error("TokenVerify db FindMemberById error", zap.Error(err))
+		zap.L().Error("FindMemInfoByIds db memberRepo.FindMemberByIds error", zap.Error(err))
 		return nil, errs.GrpcError(model.DBError)
 	}
-	memMsg := &login.MemberMessage{}
-	copier.Copy(memMsg, memberById)
-	memMsg.Code, _ = encrypts.EncryptInt64(memberById.Id, model.AESKey)
-	orgs, err := ls.organizationRepo.FindOrganizationByMemId(context.Background(), memberById.Id)
-	if err != nil {
-		zap.L().Error("TokenVerify db FindMember error", zap.Error(err))
-		return nil, errs.GrpcError(model.DBError)
+	if memberList == nil || len(memberList) <= 0 {
+		return &login.MemberMessageList{List: nil}, nil
 	}
-	if len(orgs) > 0 {
-		memMsg.OrganizationCode, _ = encrypts.EncryptInt64(orgs[0].Id, model.AESKey)
+	mMap := make(map[int64]*member.Member)
+	for _, v := range memberList {
+		mMap[v.Id] = v
 	}
-	memMsg.CreateTime = tms.FormatByMill(memberById.CreateTime)
-	return memMsg, nil
+	var memMsgs []*login.MemberMessage
+	copier.Copy(&memMsgs, memberList)
+	for _, v := range memMsgs {
+		m := mMap[v.Id]
+		v.CreateTime = tms.FormatByMill(m.CreateTime)
+		v.Code = encrypts.EncryptNoErr(v.Id)
+	}
+
+	return &login.MemberMessageList{List: memMsgs}, nil
 }
