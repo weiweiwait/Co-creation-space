@@ -9,6 +9,7 @@ import (
 	"my_project/project-common/logs"
 	"my_project/project-grpc/user/login"
 	"my_project/project-user/config"
+	"my_project/project-user/internal/interceptor"
 	loginServiceV1 "my_project/project-user/pkg/service/login.service.v1"
 	"net"
 )
@@ -38,13 +39,14 @@ func InitRouter(r *gin.Engine) {
 		ro.Route(r)
 	}
 }
+
 func Register(ro ...Router) {
 	routers = append(routers, ro...)
 }
 
 type gRPCConfig struct {
-	Addr         string             //端口号
-	RegisterFunc func(*grpc.Server) //注册
+	Addr         string
+	RegisterFunc func(*grpc.Server)
 }
 
 func RegisterGrpc() *grpc.Server {
@@ -53,7 +55,8 @@ func RegisterGrpc() *grpc.Server {
 		RegisterFunc: func(g *grpc.Server) {
 			login.RegisterLoginServiceServer(g, loginServiceV1.New())
 		}}
-	s := grpc.NewServer()
+	cacheInterceptor := interceptor.New()
+	s := grpc.NewServer(cacheInterceptor.Cache())
 	c.RegisterFunc(s)
 	lis, err := net.Listen("tcp", c.Addr)
 	if err != nil {
@@ -69,6 +72,7 @@ func RegisterGrpc() *grpc.Server {
 	}()
 	return s
 }
+
 func RegisterEtcdServer() {
 	etcdRegister := discovery.NewResolver(config.C.EtcdConfig.Addrs, logs.LG)
 	resolver.Register(etcdRegister)
