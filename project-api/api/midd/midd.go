@@ -20,7 +20,7 @@ func GetIp(c *gin.Context) string {
 	return ip
 }
 
-func TokenVerify() func(*gin.Context) {
+func TokenVerify1() func(*gin.Context) {
 	return func(c *gin.Context) {
 		result := &common.Result{}
 		//1.从header中获取token
