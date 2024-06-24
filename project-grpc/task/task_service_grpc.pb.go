@@ -25,6 +25,14 @@ const (
 	TaskService_SaveTask_FullMethodName          = "/task.service.v1.TaskService/SaveTask"
 	TaskService_TaskSort_FullMethodName          = "/task.service.v1.TaskService/TaskSort"
 	TaskService_MyTaskList_FullMethodName        = "/task.service.v1.TaskService/MyTaskList"
+	TaskService_ReadTask_FullMethodName          = "/task.service.v1.TaskService/ReadTask"
+	TaskService_ListTaskMember_FullMethodName    = "/task.service.v1.TaskService/ListTaskMember"
+	TaskService_TaskLog_FullMethodName           = "/task.service.v1.TaskService/TaskLog"
+	TaskService_TaskWorkTimeList_FullMethodName  = "/task.service.v1.TaskService/TaskWorkTimeList"
+	TaskService_SaveTaskWorkTime_FullMethodName  = "/task.service.v1.TaskService/SaveTaskWorkTime"
+	TaskService_SaveTaskFile_FullMethodName      = "/task.service.v1.TaskService/SaveTaskFile"
+	TaskService_TaskSources_FullMethodName       = "/task.service.v1.TaskService/TaskSources"
+	TaskService_CreateComment_FullMethodName     = "/task.service.v1.TaskService/CreateComment"
 )
 
 // TaskServiceClient is the client API for TaskService service.
@@ -37,6 +45,14 @@ type TaskServiceClient interface {
 	SaveTask(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskMessage, error)
 	TaskSort(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskSortResponse, error)
 	MyTaskList(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*MyTaskListResponse, error)
+	ReadTask(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskMessage, error)
+	ListTaskMember(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskMemberList, error)
+	TaskLog(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskLogList, error)
+	TaskWorkTimeList(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskWorkTimeResponse, error)
+	SaveTaskWorkTime(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*SaveTaskWorkTimeResponse, error)
+	SaveTaskFile(ctx context.Context, in *TaskFileReqMessage, opts ...grpc.CallOption) (*TaskFileResponse, error)
+	TaskSources(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskSourceResponse, error)
+	CreateComment(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*CreateCommentResponse, error)
 }
 
 type taskServiceClient struct {
@@ -101,6 +117,78 @@ func (c *taskServiceClient) MyTaskList(ctx context.Context, in *TaskReqMessage, 
 	return out, nil
 }
 
+func (c *taskServiceClient) ReadTask(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskMessage, error) {
+	out := new(TaskMessage)
+	err := c.cc.Invoke(ctx, TaskService_ReadTask_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *taskServiceClient) ListTaskMember(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskMemberList, error) {
+	out := new(TaskMemberList)
+	err := c.cc.Invoke(ctx, TaskService_ListTaskMember_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *taskServiceClient) TaskLog(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskLogList, error) {
+	out := new(TaskLogList)
+	err := c.cc.Invoke(ctx, TaskService_TaskLog_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *taskServiceClient) TaskWorkTimeList(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskWorkTimeResponse, error) {
+	out := new(TaskWorkTimeResponse)
+	err := c.cc.Invoke(ctx, TaskService_TaskWorkTimeList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *taskServiceClient) SaveTaskWorkTime(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*SaveTaskWorkTimeResponse, error) {
+	out := new(SaveTaskWorkTimeResponse)
+	err := c.cc.Invoke(ctx, TaskService_SaveTaskWorkTime_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *taskServiceClient) SaveTaskFile(ctx context.Context, in *TaskFileReqMessage, opts ...grpc.CallOption) (*TaskFileResponse, error) {
+	out := new(TaskFileResponse)
+	err := c.cc.Invoke(ctx, TaskService_SaveTaskFile_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *taskServiceClient) TaskSources(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*TaskSourceResponse, error) {
+	out := new(TaskSourceResponse)
+	err := c.cc.Invoke(ctx, TaskService_TaskSources_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *taskServiceClient) CreateComment(ctx context.Context, in *TaskReqMessage, opts ...grpc.CallOption) (*CreateCommentResponse, error) {
+	out := new(CreateCommentResponse)
+	err := c.cc.Invoke(ctx, TaskService_CreateComment_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TaskServiceServer is the server API for TaskService service.
 // All implementations must embed UnimplementedTaskServiceServer
 // for forward compatibility
@@ -111,6 +199,14 @@ type TaskServiceServer interface {
 	SaveTask(context.Context, *TaskReqMessage) (*TaskMessage, error)
 	TaskSort(context.Context, *TaskReqMessage) (*TaskSortResponse, error)
 	MyTaskList(context.Context, *TaskReqMessage) (*MyTaskListResponse, error)
+	ReadTask(context.Context, *TaskReqMessage) (*TaskMessage, error)
+	ListTaskMember(context.Context, *TaskReqMessage) (*TaskMemberList, error)
+	TaskLog(context.Context, *TaskReqMessage) (*TaskLogList, error)
+	TaskWorkTimeList(context.Context, *TaskReqMessage) (*TaskWorkTimeResponse, error)
+	SaveTaskWorkTime(context.Context, *TaskReqMessage) (*SaveTaskWorkTimeResponse, error)
+	SaveTaskFile(context.Context, *TaskFileReqMessage) (*TaskFileResponse, error)
+	TaskSources(context.Context, *TaskReqMessage) (*TaskSourceResponse, error)
+	CreateComment(context.Context, *TaskReqMessage) (*CreateCommentResponse, error)
 	mustEmbedUnimplementedTaskServiceServer()
 }
 
@@ -135,6 +231,30 @@ func (UnimplementedTaskServiceServer) TaskSort(context.Context, *TaskReqMessage)
 }
 func (UnimplementedTaskServiceServer) MyTaskList(context.Context, *TaskReqMessage) (*MyTaskListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MyTaskList not implemented")
+}
+func (UnimplementedTaskServiceServer) ReadTask(context.Context, *TaskReqMessage) (*TaskMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadTask not implemented")
+}
+func (UnimplementedTaskServiceServer) ListTaskMember(context.Context, *TaskReqMessage) (*TaskMemberList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTaskMember not implemented")
+}
+func (UnimplementedTaskServiceServer) TaskLog(context.Context, *TaskReqMessage) (*TaskLogList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TaskLog not implemented")
+}
+func (UnimplementedTaskServiceServer) TaskWorkTimeList(context.Context, *TaskReqMessage) (*TaskWorkTimeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TaskWorkTimeList not implemented")
+}
+func (UnimplementedTaskServiceServer) SaveTaskWorkTime(context.Context, *TaskReqMessage) (*SaveTaskWorkTimeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveTaskWorkTime not implemented")
+}
+func (UnimplementedTaskServiceServer) SaveTaskFile(context.Context, *TaskFileReqMessage) (*TaskFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveTaskFile not implemented")
+}
+func (UnimplementedTaskServiceServer) TaskSources(context.Context, *TaskReqMessage) (*TaskSourceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TaskSources not implemented")
+}
+func (UnimplementedTaskServiceServer) CreateComment(context.Context, *TaskReqMessage) (*CreateCommentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
 }
 func (UnimplementedTaskServiceServer) mustEmbedUnimplementedTaskServiceServer() {}
 
@@ -257,6 +377,150 @@ func _TaskService_MyTaskList_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TaskService_ReadTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskReqMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).ReadTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_ReadTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).ReadTask(ctx, req.(*TaskReqMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TaskService_ListTaskMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskReqMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).ListTaskMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_ListTaskMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).ListTaskMember(ctx, req.(*TaskReqMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TaskService_TaskLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskReqMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).TaskLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_TaskLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).TaskLog(ctx, req.(*TaskReqMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TaskService_TaskWorkTimeList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskReqMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).TaskWorkTimeList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_TaskWorkTimeList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).TaskWorkTimeList(ctx, req.(*TaskReqMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TaskService_SaveTaskWorkTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskReqMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).SaveTaskWorkTime(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_SaveTaskWorkTime_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).SaveTaskWorkTime(ctx, req.(*TaskReqMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TaskService_SaveTaskFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskFileReqMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).SaveTaskFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_SaveTaskFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).SaveTaskFile(ctx, req.(*TaskFileReqMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TaskService_TaskSources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskReqMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).TaskSources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_TaskSources_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).TaskSources(ctx, req.(*TaskReqMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TaskService_CreateComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskReqMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).CreateComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_CreateComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).CreateComment(ctx, req.(*TaskReqMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TaskService_ServiceDesc is the grpc.ServiceDesc for TaskService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -287,6 +551,38 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MyTaskList",
 			Handler:    _TaskService_MyTaskList_Handler,
+		},
+		{
+			MethodName: "ReadTask",
+			Handler:    _TaskService_ReadTask_Handler,
+		},
+		{
+			MethodName: "ListTaskMember",
+			Handler:    _TaskService_ListTaskMember_Handler,
+		},
+		{
+			MethodName: "TaskLog",
+			Handler:    _TaskService_TaskLog_Handler,
+		},
+		{
+			MethodName: "TaskWorkTimeList",
+			Handler:    _TaskService_TaskWorkTimeList_Handler,
+		},
+		{
+			MethodName: "SaveTaskWorkTime",
+			Handler:    _TaskService_SaveTaskWorkTime_Handler,
+		},
+		{
+			MethodName: "SaveTaskFile",
+			Handler:    _TaskService_SaveTaskFile_Handler,
+		},
+		{
+			MethodName: "TaskSources",
+			Handler:    _TaskService_TaskSources_Handler,
+		},
+		{
+			MethodName: "CreateComment",
+			Handler:    _TaskService_CreateComment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

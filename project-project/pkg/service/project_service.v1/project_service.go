@@ -10,8 +10,9 @@ import (
 	"my_project/project-grpc/project"
 	"my_project/project-grpc/user/login"
 	"my_project/project-project/internal/dao"
-	"my_project/project-project/internal/data"
 	"my_project/project-project/internal/data/menu"
+	"my_project/project-project/internal/data/pro"
+	"my_project/project-project/internal/data/task"
 	"my_project/project-project/internal/database"
 	"my_project/project-project/internal/database/tran"
 	"my_project/project-project/internal/repo"
@@ -58,7 +59,7 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 	memberId := msg.MemberId
 	page := msg.Page
 	pageSize := msg.PageSize
-	var pms []*data.ProjectAndMember
+	var pms []*pro.ProjectAndMember
 	var total int64
 	var err error
 	if msg.SelectBy == "" || msg.SelectBy == "my" {
@@ -81,7 +82,7 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 			zap.L().Error("project FindProjectByMemId::FindCollectProjectByMemId error", zap.Error(err))
 			return nil, errs.GrpcError(model.DBError)
 		}
-		var cMap = make(map[int64]*data.ProjectAndMember)
+		var cMap = make(map[int64]*pro.ProjectAndMember)
 		for _, v := range collectPms {
 			cMap[v.Id] = v
 		}
@@ -103,7 +104,7 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 	copier.Copy(&pmm, pms)
 	for _, v := range pmm {
 		v.Code, _ = encrypts.EncryptInt64(v.ProjectCode, model.AESKey)
-		pam := data.ToMap(pms)[v.Id]
+		pam := pro.ToMap(pms)[v.Id]
 		v.AccessControlType = pam.GetAccessControlType()
 		v.OrganizationCode, _ = encrypts.EncryptInt64(pam.OrganizationCode, model.AESKey)
 		v.JoinTime = tms.FormatByMill(pam.JoinTime)
@@ -119,7 +120,7 @@ func (ps *ProjectService) FindProjectTemplate(ctx context.Context, msg *project.
 	organizationCode, _ := strconv.ParseInt(organizationCodeStr, 10, 64)
 	page := msg.Page
 	pageSize := msg.PageSize
-	var pts []data.ProjectTemplate
+	var pts []pro.ProjectTemplate
 	var total int64
 	var err error
 	if msg.ViewType == -1 {
@@ -136,15 +137,15 @@ func (ps *ProjectService) FindProjectTemplate(ctx context.Context, msg *project.
 		return nil, errs.GrpcError(model.DBError)
 	}
 	//2.模型转换，拿到模板id列表 去 任务步骤模板表 去进行查询
-	tsts, err := ps.taskStagesTemplateRepo.FindInProTemIds(ctx, data.ToProjectTemplateIds(pts))
+	tsts, err := ps.taskStagesTemplateRepo.FindInProTemIds(ctx, pro.ToProjectTemplateIds(pts))
 	if err != nil {
 		zap.L().Error("project FindProjectTemplate FindInProTemIds error", zap.Error(err))
 		return nil, errs.GrpcError(model.DBError)
 	}
-	var ptas []*data.ProjectTemplateAll
+	var ptas []*pro.ProjectTemplateAll
 	for _, v := range pts {
 		//写代码 该谁做的事情一定要交出去
-		ptas = append(ptas, v.Convert(data.CovertProjectMap(tsts)[v.Id]))
+		ptas = append(ptas, v.Convert(task.CovertProjectMap(tsts)[v.Id]))
 	}
 	//3.组装数据
 	var pmMsgs []*project.ProjectTemplateMessage
@@ -165,7 +166,7 @@ func (ps *ProjectService) SaveProject(ctxs context.Context, msg *project.Project
 		return nil, errs.GrpcError(model.DBError)
 	}
 	//1. 保存项目表
-	pr := &data.Project{
+	pr := &pro.Project{
 		Name:              msg.Name,
 		Description:       msg.Description,
 		TemplateCode:      int(templateCode),
@@ -183,7 +184,7 @@ func (ps *ProjectService) SaveProject(ctxs context.Context, msg *project.Project
 			zap.L().Error("project SaveProject SaveProject error", zap.Error(err))
 			return errs.GrpcError(model.DBError)
 		}
-		pm := &data.ProjectMember{
+		pm := &pro.ProjectMember{
 			ProjectCode: pr.Id,
 			MemberCode:  msg.MemberId,
 			JoinTime:    time.Now().UnixMilli(),
@@ -198,7 +199,7 @@ func (ps *ProjectService) SaveProject(ctxs context.Context, msg *project.Project
 		}
 		//3. 生成任务的步骤
 		for index, v := range stageTemplateList {
-			taskStage := &data.TaskStages{
+			taskStage := &task.TaskStages{
 				ProjectCode: pr.Id,
 				Name:        v.Name,
 				Sort:        index + 1,
@@ -289,7 +290,7 @@ func (ps *ProjectService) UpdateProject(ctx context.Context, msg *project.Update
 	projectCode, _ := strconv.ParseInt(projectCodeStr, 10, 64)
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	proj := &data.Project{
+	proj := &pro.Project{
 		Id:                 projectCode,
 		Name:               msg.Name,
 		Description:        msg.Description,

@@ -1,9 +1,10 @@
-package data
+package task
 
 import (
 	"github.com/jinzhu/copier"
 	"my_project/project-common/encrypts"
 	"my_project/project-common/tms"
+	"my_project/project-project/internal/data/pro"
 )
 
 type MsTaskStagesTemplate struct {
@@ -152,6 +153,10 @@ type TaskDisplay struct {
 	Code          string
 	CanRead       int
 	Executor      Executor
+	ProjectName   string
+	StageName     string
+	PriText       string
+	StatusText    string
 }
 
 type Executor struct {
@@ -237,7 +242,7 @@ type MyTaskDisplay struct {
 	Executor           *Executor
 }
 
-func (t *Task) ToMyTaskDisplay(p *Project, name string, avatar string) *MyTaskDisplay {
+func (t *Task) ToMyTaskDisplay(p *pro.Project, name string, avatar string) *MyTaskDisplay {
 	td := &MyTaskDisplay{}
 	copier.Copy(td, p)
 	copier.Copy(td, t)

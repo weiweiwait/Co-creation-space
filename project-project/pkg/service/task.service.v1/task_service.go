@@ -10,7 +10,8 @@ import (
 	"my_project/project-grpc/task"
 	"my_project/project-grpc/user/login"
 	"my_project/project-project/internal/dao"
-	"my_project/project-project/internal/data"
+	"my_project/project-project/internal/data/pro"
+	task2 "my_project/project-project/internal/data/task"
 	"my_project/project-project/internal/database"
 	"my_project/project-project/internal/database/tran"
 	"my_project/project-project/internal/repo"
@@ -58,7 +59,7 @@ func (t *TaskService) TaskStages(co context.Context, msg *task.TaskReqMessage) (
 	if tsMessages == nil {
 		return &task.TaskStagesResponse{List: tsMessages, Total: 0}, nil
 	}
-	stagesMap := data.ToTaskStagesMap(stages)
+	stagesMap := task2.ToTaskStagesMap(stages)
 	for _, v := range tsMessages {
 		taskStages := stagesMap[int(v.Id)]
 		v.Code = encrypts.EncryptNoErr(int64(v.Id))
@@ -82,7 +83,7 @@ func (t *TaskService) MemberProjectList(co context.Context, msg *task.TaskReqMes
 		return &task.MemberProjectResponse{List: nil, Total: 0}, nil
 	}
 	var mIds []int64
-	pmMap := make(map[int64]*data.ProjectMember)
+	pmMap := make(map[int64]*pro.ProjectMember)
 	for _, v := range projectMembers {
 		mIds = append(mIds, v.MemberCode)
 		pmMap[v.MemberCode] = v
@@ -155,7 +156,7 @@ func (t *TaskService) SaveTask(ctx context.Context, msg *task.TaskReqMessage) (*
 		maxSort = &a
 	}
 	assignTo := encrypts.DecryptNoErr(msg.AssignTo)
-	ts := &data.Task{
+	ts := &task2.Task{
 		Name:        msg.Name,
 		CreateTime:  time.Now().UnixMilli(),
 		CreateBy:    msg.MemberId,
@@ -175,7 +176,7 @@ func (t *TaskService) SaveTask(ctx context.Context, msg *task.TaskReqMessage) (*
 			return errs.GrpcError(model.DBError)
 		}
 
-		tm := &data.TaskMember{
+		tm := &task2.TaskMember{
 			MemberCode: assignTo,
 			TaskCode:   ts.Id,
 			JoinTime:   time.Now().UnixMilli(),
@@ -200,7 +201,7 @@ func (t *TaskService) SaveTask(ctx context.Context, msg *task.TaskReqMessage) (*
 	if err != nil {
 		return nil, err
 	}
-	display.Executor = data.Executor{
+	display.Executor = task2.Executor{
 		Name:   member.Name,
 		Avatar: member.Avatar,
 		Code:   member.Code,
@@ -312,7 +313,7 @@ func (t *TaskService) resetSort(stageCode int64) error {
 }
 
 func (t *TaskService) MyTaskList(ctx context.Context, msg *task.TaskReqMessage) (*task.MyTaskListResponse, error) {
-	var tsList []*data.Task
+	var tsList []*task2.Task
 	var err error
 	var total int64
 	if msg.TaskType == 1 {
@@ -348,7 +349,7 @@ func (t *TaskService) MyTaskList(ctx context.Context, msg *task.TaskReqMessage) 
 		pids = append(pids, v.ProjectCode)
 		mids = append(mids, v.AssignTo)
 	}
-	pListChan := make(chan []*data.Project)
+	pListChan := make(chan []*pro.Project)
 	defer close(pListChan)
 	mListChan := make(chan *login.MemberMessageList)
 	defer close(mListChan)
@@ -365,13 +366,13 @@ func (t *TaskService) MyTaskList(ctx context.Context, msg *task.TaskReqMessage) 
 		mListChan <- mList
 	}()
 	pList := <-pListChan
-	projectMap := data.ToProjectMap(pList)
+	projectMap := pro.ToProjectMap(pList)
 	mList := <-mListChan
 	mMap := make(map[int64]*login.MemberMessage)
 	for _, v := range mList.List {
 		mMap[v.Id] = v
 	}
-	var mtdList []*data.MyTaskDisplay
+	var mtdList []*task2.MyTaskDisplay
 	for _, v := range tsList {
 		memberMessage := mMap[v.AssignTo]
 		name := memberMessage.Name
@@ -382,4 +383,49 @@ func (t *TaskService) MyTaskList(ctx context.Context, msg *task.TaskReqMessage) 
 	var myMsgs []*task.MyTaskMessage
 	copier.Copy(&myMsgs, mtdList)
 	return &task.MyTaskListResponse{List: myMsgs, Total: total}, nil
+}
+func (t *TaskService) ReadTask(ctx context.Context, msg *task.TaskReqMessage) (*task.TaskMessage, error) {
+	//根据taskCode查询任务详情 根据任务查询项目详情 根据任务查询任务步骤详情 查询任务的执行者的成员详情
+	taskCode := encrypts.DecryptNoErr(msg.TaskCode)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	taskInfo, err := t.taskRepo.FindTaskById(c, taskCode)
+	if err != nil {
+		zap.L().Error("project task ReadTask taskRepo FindTaskById error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	if taskInfo == nil {
+		return &task.TaskMessage{}, nil
+	}
+	display := taskInfo.ToTaskDisplay()
+	if taskInfo.Private == 1 {
+		//代表隐私模式
+		taskMember, err := t.taskRepo.FindTaskMemberByTaskId(ctx, taskInfo.Id, msg.MemberId)
+		if err != nil {
+			zap.L().Error("project task TaskList taskRepo.FindTaskMemberByTaskId error", zap.Error(err))
+			return nil, errs.GrpcError(model.DBError)
+		}
+		if taskMember != nil {
+			display.CanRead = model.CanRead
+		} else {
+			display.CanRead = model.NoCanRead
+		}
+	}
+	pj, err := t.projectRepo.FindProjectById(c, taskInfo.ProjectCode)
+	display.ProjectName = pj.Name
+	taskStages, err := t.taskStagesRepo.FindById(c, taskInfo.StageCode)
+	display.StageName = taskStages.Name
+	memberMessage, err := rpc.LoginServiceClient.FindMemInfoById(ctx, &login.UserMessage{MemId: taskInfo.AssignTo})
+	if err != nil {
+		zap.L().Error("project task TaskList LoginServiceClient.FindMemInfoById error", zap.Error(err))
+		return nil, err
+	}
+	e := task2.Executor{
+		Name:   memberMessage.Name,
+		Avatar: memberMessage.Avatar,
+	}
+	display.Executor = e
+	var taskMessage = &task.TaskMessage{}
+	copier.Copy(taskMessage, display)
+	return taskMessage, nil
 }

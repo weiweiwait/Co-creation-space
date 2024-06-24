@@ -1,4 +1,4 @@
-package data
+package task
 
 type TaskStages struct {
 	Id          int    `json:"id"`
