@@ -348,12 +348,25 @@ func (t *TaskService) MyTaskList(ctx context.Context, msg *task.TaskReqMessage) 
 		pids = append(pids, v.ProjectCode)
 		mids = append(mids, v.AssignTo)
 	}
-	pList, err := t.projectRepo.FindProjectByIds(ctx, pids)
+	pListChan := make(chan []*data.Project)
+	defer close(pListChan)
+	mListChan := make(chan *login.MemberMessageList)
+	defer close(mListChan)
+	//1.
+	go func() {
+		pList, _ := t.projectRepo.FindProjectByIds(ctx, pids)
+		pListChan <- pList
+	}()
+	go func() {
+		mList, _ := rpc.LoginServiceClient.FindMemInfoByIds(ctx, &login.UserMessage{
+			//2.  1,2这两个请求无关联性  go+channel
+			MIds: mids,
+		})
+		mListChan <- mList
+	}()
+	pList := <-pListChan
 	projectMap := data.ToProjectMap(pList)
-
-	mList, err := rpc.LoginServiceClient.FindMemInfoByIds(ctx, &login.UserMessage{
-		MIds: mids,
-	})
+	mList := <-mListChan
 	mMap := make(map[int64]*login.MemberMessage)
 	for _, v := range mList.List {
 		mMap[v.Id] = v
