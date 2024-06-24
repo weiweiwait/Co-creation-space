@@ -144,6 +144,7 @@ func (ls *LoginService) Register(ctx context.Context, msg *login.RegisterMessage
 	//5. 返回
 	return &login.RegisterResponse{}, err
 }
+
 func (ls *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*login.LoginResponse, error) {
 	c := context.Background()
 	//1.去数据库查询 账号密码是否正确
@@ -182,7 +183,8 @@ func (ls *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*lo
 	memIdStr := strconv.FormatInt(mem.Id, 10)
 	exp := time.Duration(config.C.JwtConfig.AccessExp*3600*24) * time.Second
 	rExp := time.Duration(config.C.JwtConfig.RefreshExp*3600*24) * time.Second
-	token := jwts.CreateToken(memIdStr, exp, config.C.JwtConfig.AccessSecret, rExp, config.C.JwtConfig.RefreshSecret)
+	token := jwts.CreateToken(memIdStr, exp, config.C.JwtConfig.AccessSecret, rExp, config.C.JwtConfig.RefreshSecret, msg.Ip)
+	//可以给token做加密处理 增加安全性
 	tokenList := &login.TokenMessage{
 		AccessToken:    token.AccessToken,
 		RefreshToken:   token.RefreshToken,
@@ -207,7 +209,7 @@ func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage
 	if strings.Contains(token, "bearer") {
 		token = strings.ReplaceAll(token, "bearer ", "")
 	}
-	parseToken, err := jwts.ParseToken(token, config.C.JwtConfig.AccessSecret)
+	parseToken, err := jwts.ParseToken(token, config.C.JwtConfig.AccessSecret, msg.Ip)
 	if err != nil {
 		zap.L().Error("Login  TokenVerify error", zap.Error(err))
 		return nil, errs.GrpcError(model.NoLogin)
