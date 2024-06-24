@@ -10,6 +10,7 @@ import (
 	_ "my_project/project-api/pkg/model/user"
 	common "my_project/project-common"
 	"my_project/project-common/errs"
+	"my_project/project-common/tms"
 	"my_project/project-grpc/task"
 	"net/http"
 	"time"
@@ -318,6 +319,26 @@ func (t *HandlerTask) taskWorkTimeList(c *gin.Context) {
 	c.JSON(http.StatusOK, result.Success(tms))
 }
 
+func (t *HandlerTask) saveTaskWorkTime(c *gin.Context) {
+	result := &common.Result{}
+	var req *model.SaveTaskWorkTimeReq
+	c.ShouldBind(&req)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &task.TaskReqMessage{
+		TaskCode:  req.TaskCode,
+		MemberId:  c.GetInt64("memberId"),
+		Content:   req.Content,
+		Num:       int32(req.Num),
+		BeginTime: tms.ParseTime(req.BeginTime),
+	}
+	_, err := TaskServiceClient.SaveTaskWorkTime(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+	}
+	c.JSON(http.StatusOK, result.Success([]int{}))
+}
 func NewTask() *HandlerTask {
 	return &HandlerTask{}
 }
