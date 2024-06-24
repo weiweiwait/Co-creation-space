@@ -10,9 +10,12 @@ import (
 	_ "my_project/project-api/pkg/model/user"
 	common "my_project/project-common"
 	"my_project/project-common/errs"
+	"my_project/project-common/fs"
 	"my_project/project-common/tms"
 	"my_project/project-grpc/task"
 	"net/http"
+	"os"
+	"path"
 	"time"
 )
 
@@ -339,6 +342,95 @@ func (t *HandlerTask) saveTaskWorkTime(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success([]int{}))
 }
+
+func (t *HandlerTask) uploadFiles(c *gin.Context) {
+	result := &common.Result{}
+	req := model.UploadFileReq{}
+	c.ShouldBind(&req)
+	//处理文件
+	multipartForm, _ := c.MultipartForm()
+	file := multipartForm.File
+	//假设只上传一个文件
+	uploadFile := file["file"][0]
+	//第一种 没有达成分片的条件
+	key := ""
+	if req.TotalChunks == 1 {
+		//不分片
+		path := "upload/" + req.ProjectCode + "/" + req.TaskCode + "/" + tms.FormatYMD(time.Now())
+		if !fs.IsExist(path) {
+			os.MkdirAll(path, os.ModePerm)
+		}
+		dst := path + "/" + req.Filename
+		key = dst
+		err := c.SaveUploadedFile(uploadFile, dst)
+		if err != nil {
+			c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
+			return
+		}
+	}
+	if req.TotalChunks > 1 {
+		//分片上传 无非就是先把每次的存储起来 追加就可以了
+		path := "upload/" + req.ProjectCode + "/" + req.TaskCode + "/" + tms.FormatYMD(time.Now())
+		if !fs.IsExist(path) {
+			os.MkdirAll(path, os.ModePerm)
+		}
+		fileName := path + "/" + req.Identifier
+		openFile, err := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+		if err != nil {
+			c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
+			return
+		}
+		open, err := uploadFile.Open()
+		if err != nil {
+			c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
+			return
+		}
+		defer open.Close()
+		buf := make([]byte, req.CurrentChunkSize)
+		open.Read(buf)
+		openFile.Write(buf)
+		openFile.Close()
+		key = fileName
+		if req.TotalChunks == req.ChunkNumber {
+			//最后一个分片了
+			newPath := path + "/" + req.Filename
+			key = newPath
+			os.Rename(fileName, newPath)
+		}
+	}
+	//调用服务 存入file表
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	fileUrl := "http://localhost/" + key
+	msg := &task.TaskFileReqMessage{
+		TaskCode:         req.TaskCode,
+		ProjectCode:      req.ProjectCode,
+		OrganizationCode: c.GetString("organizationCode"),
+		PathName:         key,
+		FileName:         req.Filename,
+		Size:             int64(req.TotalSize),
+		Extension:        path.Ext(key),
+		FileUrl:          fileUrl,
+		FileType:         file["file"][0].Header.Get("Content-Type"),
+		MemberId:         c.GetInt64("memberId"),
+	}
+	if req.TotalChunks == req.ChunkNumber {
+		_, err := TaskServiceClient.SaveTaskFile(ctx, msg)
+		if err != nil {
+			code, msg := errs.ParseGrpcError(err)
+			c.JSON(http.StatusOK, result.Fail(code, msg))
+		}
+	}
+
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"file":        key,
+		"hash":        "",
+		"key":         key,
+		"url":         "http://localhost/" + key,
+		"projectName": req.ProjectName,
+	}))
+}
+
 func NewTask() *HandlerTask {
 	return &HandlerTask{}
 }
