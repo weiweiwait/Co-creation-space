@@ -7,6 +7,7 @@ import (
 	"my_project/project-api/pkg/model"
 	"my_project/project-api/pkg/model/pro"
 	"my_project/project-api/pkg/model/tasks"
+	_ "my_project/project-api/pkg/model/user"
 	common "my_project/project-common"
 	"my_project/project-common/errs"
 	"my_project/project-grpc/task"
@@ -258,6 +259,44 @@ func (t *HandlerTask) listTaskMember(c *gin.Context) {
 		"page":  page.Page,
 	}))
 }
+
+func (t *HandlerTask) taskLog(c *gin.Context) {
+	result := &common.Result{}
+	var req *model.TaskLogReq
+	c.ShouldBind(&req)
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &task.TaskReqMessage{
+		TaskCode: req.TaskCode,
+		MemberId: c.GetInt64("memberId"),
+		Page:     int64(req.Page),
+		PageSize: int64(req.PageSize),
+		All:      int32(req.All),
+		Comment:  int32(req.Comment),
+	}
+	taskLogResponse, err := TaskServiceClient.TaskLog(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+	}
+	var tms []*model.ProjectLogDisplay
+	copier.Copy(&tms, taskLogResponse.List)
+	if tms == nil {
+		tms = []*model.ProjectLogDisplay{}
+	}
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"list":  tms,
+		"total": taskLogResponse.Total,
+		"page":  req.Page,
+	}))
+}
+
 func NewTask() *HandlerTask {
 	return &HandlerTask{}
 }
