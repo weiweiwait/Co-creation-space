@@ -1,10 +1,9 @@
-package task
+package data
 
 import (
 	"github.com/jinzhu/copier"
 	"my_project/project-common/encrypts"
 	"my_project/project-common/tms"
-	"my_project/project-project/internal/data/pro"
 )
 
 type MsTaskStagesTemplate struct {
@@ -165,6 +164,39 @@ type Executor struct {
 	Code   string
 }
 
+const (
+	NoStarted = iota
+	Started
+)
+const (
+	Normal = iota
+	Urgent
+	VeryUrgent
+)
+
+func (t *Task) GetStatusStr() string {
+	status := t.Status
+	if status == NoStarted {
+		return "未开始"
+	}
+	if status == Started {
+		return "开始"
+	}
+	return ""
+}
+func (t *Task) GetPriStr() string {
+	status := t.Pri
+	if status == Normal {
+		return "普通"
+	}
+	if status == Urgent {
+		return "紧急"
+	}
+	if status == VeryUrgent {
+		return "非常紧急"
+	}
+	return ""
+}
 func (t *Task) ToTaskDisplay() *TaskDisplay {
 	td := &TaskDisplay{}
 	copier.Copy(td, t)
@@ -242,7 +274,7 @@ type MyTaskDisplay struct {
 	Executor           *Executor
 }
 
-func (t *Task) ToMyTaskDisplay(p *pro.Project, name string, avatar string) *MyTaskDisplay {
+func (t *Task) ToMyTaskDisplay(p *Project, name string, avatar string) *MyTaskDisplay {
 	td := &MyTaskDisplay{}
 	copier.Copy(td, p)
 	copier.Copy(td, t)
