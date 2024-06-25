@@ -19,3 +19,5 @@
 {"level":"ERROR","time":"2024-06-23T18:49:40.468+0800","caller":"login.service.v1/login_service.go:212","msg":"Login  TokenVerify error","error":"token contains an invalid number of segments"}
 {"level":"INFO","time":"2024-06-23T18:58:54.032+0800","caller":"interceptor/cache.go:53","msg":"/login.service.v1.LoginService/MyOrgList 放入缓存"}
 {"level":"INFO","time":"2024-06-23T18:59:04.159+0800","caller":"interceptor/cache.go:47","msg":"/login.service.v1.LoginService/MyOrgList 走了缓存"}
+{"level":"INFO","time":"2024-06-25T11:44:38.849+0800","caller":"midd/log_time.go:16","msg":"/debug/pprof/ 用时 0 ms"}
+{"level":"INFO","time":"2024-06-25T11:44:38.889+0800","caller":"midd/log_time.go:16","msg":"/favicon.ico 用时 0 ms"}
