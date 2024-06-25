@@ -16,7 +16,7 @@ func logicCode() {
 		case v := <-c:
 			fmt.Printf("recv from chan, value:%v\n", v)
 		default:
-			time.Sleep(2 * time.Second)
+			//time.Sleep(2 * time.Second)
 		}
 	}
 }
