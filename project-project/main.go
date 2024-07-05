@@ -11,6 +11,8 @@ func main() {
 	r := gin.Default()
 	//路由
 	router.InitRouter(r)
+	//初始化rpc调用
+	router.InitUserRpc()
 	//grpc服务注册
 	gc := router.RegisterGrpc()
 	//grpc服务注册到etcd
@@ -18,7 +20,6 @@ func main() {
 	stop := func() {
 		gc.Stop()
 	}
-	//初始化rpc调用
-	router.InitUserRpc()
+
 	srv.Run(r, config.C.SC.Name, config.C.SC.Addr, stop)
 }
