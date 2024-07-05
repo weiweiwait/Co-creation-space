@@ -167,3 +167,76 @@ CREATE TABLE `ms_file`  (
                             `deleted_time` bigint(0) NULL DEFAULT NULL COMMENT '删除时间',
                             PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 44 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文件表' ROW_FORMAT = COMPACT;
+CREATE TABLE `ms_member_account`  (
+                                      `id` bigint(0) NOT NULL AUTO_INCREMENT,
+                                      `member_code` bigint(0) NULL DEFAULT NULL COMMENT '所属账号id',
+                                      `organization_code` bigint(0) NULL DEFAULT NULL COMMENT '所属组织',
+                                      `department_code` bigint(0) NULL DEFAULT NULL COMMENT '部门编号',
+                                      `authorize` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '角色',
+                                      `is_owner` tinyint(1) NULL DEFAULT 0 COMMENT '是否主账号',
+                                      `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '姓名',
+                                      `mobile` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '手机号码',
+                                      `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '邮件',
+                                      `create_time` bigint(0) NULL DEFAULT NULL COMMENT '创建时间',
+                                      `last_login_time` bigint(0) NULL DEFAULT NULL COMMENT '上次登录时间',
+                                      `status` tinyint(1) NULL DEFAULT 0 COMMENT '状态0禁用 1使用中',
+                                      `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
+                                      `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '头像',
+                                      `position` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '职位',
+                                      `department` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '部门',
+                                      PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '组织账号表' ROW_FORMAT = COMPACT;
+CREATE TABLE `ms_department`  (
+                                  `id` bigint(0) NOT NULL AUTO_INCREMENT,
+                                  `organization_code` bigint(0) NULL DEFAULT NULL COMMENT '组织编号',
+                                  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '名称',
+                                  `sort` int(0) NULL DEFAULT 0 COMMENT '排序',
+                                  `pcode` bigint(0) NULL DEFAULT NULL COMMENT '上级编号',
+                                  `icon` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图标',
+                                  `create_time` bigint(0) NULL DEFAULT NULL COMMENT '创建时间',
+                                  `path` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '上级路径',
+                                  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '部门表' ROW_FORMAT = COMPACT;
+CREATE TABLE `ms_department_member`  (
+                                         `id` bigint(0) NOT NULL AUTO_INCREMENT,
+                                         `department_code` bigint(0) NULL DEFAULT NULL COMMENT '部门id',
+                                         `organization_code` bigint(0) NULL DEFAULT NULL COMMENT '组织id',
+                                         `account_code` bigint(0) NULL DEFAULT NULL COMMENT '成员id',
+                                         `join_time` bigint(0) NULL DEFAULT NULL COMMENT '加入时间',
+                                         `is_principal` tinyint(1) NULL DEFAULT NULL COMMENT '是否负责人',
+                                         `is_owner` tinyint(1) NULL DEFAULT 0 COMMENT '拥有者',
+                                         `authorize` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '角色',
+                                         PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 38 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '部门-成员表' ROW_FORMAT = COMPACT;
+CREATE TABLE `ms_project_auth_node`  (
+                                         `id` bigint(0) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                         `auth` bigint(0) UNSIGNED NULL DEFAULT NULL COMMENT '角色ID',
+                                         `node` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '节点路径',
+                                         PRIMARY KEY (`id`) USING BTREE,
+                                         INDEX `index_system_auth_auth`(`auth`) USING BTREE,
+                                         INDEX `index_system_auth_node`(`node`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5280 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '项目角色与节点绑定' ROW_FORMAT = COMPACT;
+CREATE TABLE `ms_project_node`  (
+                                    `id` int(0) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                    `node` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '节点代码',
+                                    `title` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '节点标题',
+                                    `is_menu` tinyint(0) UNSIGNED NULL DEFAULT 0 COMMENT '是否可设置为菜单',
+                                    `is_auth` tinyint(0) UNSIGNED NULL DEFAULT 1 COMMENT '是否启动RBAC权限控制',
+                                    `is_login` tinyint(0) UNSIGNED NULL DEFAULT 1 COMMENT '是否启动登录控制',
+                                    `create_at` bigint(0) NULL DEFAULT NULL COMMENT '创建时间',
+                                    PRIMARY KEY (`id`) USING BTREE,
+                                    INDEX `index_system_node_node`(`node`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 641 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '项目端节点表' ROW_FORMAT = COMPACT;
+CREATE TABLE `ms_project_auth`  (
+                                    `id` bigint(0) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                    `title` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '权限名称',
+                                    `status` tinyint(0) UNSIGNED NULL DEFAULT 1 COMMENT '状态(0:禁用,1:启用)',
+                                    `sort` smallint(0) UNSIGNED NULL DEFAULT 0 COMMENT '排序权重',
+                                    `desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注说明',
+                                    `create_by` bigint(0) UNSIGNED NULL DEFAULT 0 COMMENT '创建人',
+                                    `create_at` bigint(0) NULL DEFAULT NULL COMMENT '创建时间',
+                                    `organization_code` bigint(0) NULL DEFAULT NULL COMMENT '所属组织',
+                                    `is_default` tinyint(1) NULL DEFAULT 0 COMMENT '是否默认',
+                                    `type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '权限类型',
+                                    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '项目权限表' ROW_FORMAT = COMPACT;
