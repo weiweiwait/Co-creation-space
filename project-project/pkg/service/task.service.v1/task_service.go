@@ -13,6 +13,7 @@ import (
 	"my_project/project-project/internal/data"
 	"my_project/project-project/internal/database"
 	"my_project/project-project/internal/database/tran"
+	"my_project/project-project/internal/domain"
 	"my_project/project-project/internal/repo"
 	"my_project/project-project/internal/rpc"
 	"my_project/project-project/pkg/model"
@@ -32,6 +33,7 @@ type TaskService struct {
 	taskWorkTimeRepo       repo.TaskWorkTimeRepo
 	fileRepo               repo.FileRepo
 	sourceLinkRepo         repo.SourceLinkRepo
+	taskWorkTimeDomain     *domain.TaskWorkTimeDomain
 }
 
 func New() *TaskService {
@@ -47,6 +49,7 @@ func New() *TaskService {
 		taskWorkTimeRepo:       dao.NewTaskWorkTimeDao(),
 		fileRepo:               dao.NewFileDao(),
 		sourceLinkRepo:         dao.NewSourceLinkDao(),
+		taskWorkTimeDomain:     domain.NewTaskWorkTimeDomain(),
 	}
 }
 func (t *TaskService) TaskStages(co context.Context, msg *task.TaskReqMessage) (*task.TaskStagesResponse, error) {
@@ -521,41 +524,12 @@ func (t *TaskService) TaskLog(ctx context.Context, msg *task.TaskReqMessage) (*t
 
 func (t *TaskService) TaskWorkTimeList(ctx context.Context, msg *task.TaskReqMessage) (*task.TaskWorkTimeResponse, error) {
 	taskCode := encrypts.DecryptNoErr(msg.TaskCode)
-	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-	var list []*data.TaskWorkTime
-	var err error
-	list, err = t.taskWorkTimeRepo.FindWorkTimeList(c, taskCode)
+	list, err := t.taskWorkTimeDomain.TaskWorkTimeList(taskCode)
 	if err != nil {
-		zap.L().Error("project task TaskWorkTimeList taskWorkTimeRepo.FindWorkTimeList error", zap.Error(err))
-		return nil, errs.GrpcError(model.DBError)
-	}
-	if len(list) == 0 {
-		return &task.TaskWorkTimeResponse{}, nil
-	}
-	var displayList []*data.TaskWorkTimeDisplay
-	var mIdList []int64
-	for _, v := range list {
-		mIdList = append(mIdList, v.MemberCode)
-	}
-	messageList, err := rpc.LoginServiceClient.FindMemInfoByIds(c, &login.UserMessage{MIds: mIdList})
-	mMap := make(map[int64]*login.MemberMessage)
-	for _, v := range messageList.List {
-		mMap[v.Id] = v
-	}
-	for _, v := range list {
-		display := v.ToDisplay()
-		message := mMap[v.MemberCode]
-		m := data.Member{}
-		m.Name = message.Name
-		m.Id = message.Id
-		m.Avatar = message.Avatar
-		m.Code = message.Code
-		display.Member = m
-		displayList = append(displayList, display)
+		return nil, errs.GrpcError(err)
 	}
 	var l []*task.TaskWorkTime
-	copier.Copy(&l, displayList)
+	copier.Copy(&l, list)
 	return &task.TaskWorkTimeResponse{List: l, Total: int64(len(l))}, nil
 }
 func (t *TaskService) SaveTaskWorkTime(ctx context.Context, msg *task.TaskReqMessage) (*task.SaveTaskWorkTimeResponse, error) {
