@@ -1,6 +1,10 @@
 package account_service_v1
 
 import (
+	"context"
+	"github.com/jinzhu/copier"
+	"my_project/project-common/encrypts"
+	"my_project/project-common/errs"
 	"my_project/project-grpc/account"
 	"my_project/project-project/internal/dao"
 	"my_project/project-project/internal/database/tran"
@@ -23,4 +27,32 @@ func New() *AccountService {
 		accountDomain:     domain.NewAccountDomain(),
 		projectAuthDomain: domain.NewProjectAuthDomain1(),
 	}
+}
+
+func (a *AccountService) Account(ctx context.Context, msg *account.AccountReqMessage) (*account.AccountResponse, error) {
+	//1. 去account表查询account
+	//2. 去auth表查询authList
+	accountList, total, err := a.accountDomain.AccountList(
+		msg.OrganizationCode,
+		msg.MemberId,
+		msg.Page,
+		msg.PageSize,
+		msg.DepartmentCode,
+		msg.SearchType)
+	if err != nil {
+		return nil, errs.GrpcError(err)
+	}
+	authList, err := a.projectAuthDomain.AuthList(encrypts.DecryptNoErr(msg.OrganizationCode))
+	if err != nil {
+		return nil, errs.GrpcError(err)
+	}
+	var maList []*account.MemberAccount
+	copier.Copy(&maList, accountList)
+	var prList []*account.ProjectAuth
+	copier.Copy(&prList, authList)
+	return &account.AccountResponse{
+		AccountList: maList,
+		AuthList:    prList,
+		Total:       total,
+	}, nil
 }

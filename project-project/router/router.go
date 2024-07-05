@@ -7,11 +7,13 @@ import (
 	"log"
 	"my_project/project-common/discovery"
 	"my_project/project-common/logs"
+	"my_project/project-grpc/account"
 	"my_project/project-grpc/project"
 	"my_project/project-grpc/task"
 	"my_project/project-project/config"
 	"my_project/project-project/interceptor"
 	"my_project/project-project/internal/rpc"
+	account_service_v1 "my_project/project-project/pkg/service/account.service.v1"
 	project_service_v1 "my_project/project-project/pkg/service/project_service.v1"
 	task_service_v1 "my_project/project-project/pkg/service/task.service.v1"
 	"net"
@@ -58,6 +60,7 @@ func RegisterGrpc() *grpc.Server {
 		RegisterFunc: func(g *grpc.Server) {
 			project.RegisterProjectServiceServer(g, project_service_v1.New())
 			task.RegisterTaskServiceServer(g, task_service_v1.New())
+			account.RegisterAccountServiceServer(g, account_service_v1.New())
 		}}
 	s := grpc.NewServer(interceptor.New().Cache())
 	c.RegisterFunc(s)
