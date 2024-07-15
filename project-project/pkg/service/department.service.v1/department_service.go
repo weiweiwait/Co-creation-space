@@ -66,3 +66,14 @@ func (d *DepartmentService) Save(ctx context.Context, msg *department.Department
 	copier.Copy(res, dp)
 	return res, nil
 }
+func (d *DepartmentService) Read(ctx context.Context, msg *department.DepartmentReqMessage) (*department.DepartmentMessage, error) {
+	//organizationCode := encrypts.DecryptNoErr(msg.OrganizationCode)
+	departmentCode := encrypts.DecryptNoErr(msg.DepartmentCode)
+	dp, err := d.departmentDomain.FindDepartmentById(departmentCode)
+	if err != nil {
+		return &department.DepartmentMessage{}, errs.GrpcError(err)
+	}
+	var res = &department.DepartmentMessage{}
+	copier.Copy(res, dp.ToDisplay())
+	return res, nil
+}
