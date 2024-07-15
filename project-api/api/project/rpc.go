@@ -9,6 +9,7 @@ import (
 	"my_project/project-common/discovery"
 	"my_project/project-common/logs"
 	"my_project/project-grpc/account"
+	"my_project/project-grpc/department"
 	"my_project/project-grpc/project"
 	"my_project/project-grpc/task"
 )
@@ -16,6 +17,7 @@ import (
 var ProjectServiceClient project.ProjectServiceClient
 var TaskServiceClient task.TaskServiceClient
 var AccountServiceClient account.AccountServiceClient
+var DepartmentServiceClient department.DepartmentServiceClient
 
 func InitRpcProjectClient() {
 	etcdRegister := discovery.NewResolver(config.C.EtcdConfig.Addrs, logs.LG)
