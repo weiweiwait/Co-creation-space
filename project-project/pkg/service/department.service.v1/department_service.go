@@ -44,3 +44,25 @@ func (d *DepartmentService) List(ctx context.Context, msg *department.Department
 	copier.Copy(&list, dps)
 	return &department.ListDepartmentMessage{List: list, Total: total}, nil
 }
+func (d *DepartmentService) Save(ctx context.Context, msg *department.DepartmentReqMessage) (*department.DepartmentMessage, error) {
+	organizationCode := encrypts.DecryptNoErr(msg.OrganizationCode)
+	var departmentCode int64
+	if msg.DepartmentCode != "" {
+		departmentCode = encrypts.DecryptNoErr(msg.DepartmentCode)
+	}
+	var parentDepartmentCode int64
+	if msg.ParentDepartmentCode != "" {
+		parentDepartmentCode = encrypts.DecryptNoErr(msg.ParentDepartmentCode)
+	}
+	dp, err := d.departmentDomain.Save(
+		organizationCode,
+		departmentCode,
+		parentDepartmentCode,
+		msg.Name)
+	if err != nil {
+		return &department.DepartmentMessage{}, errs.GrpcError(err)
+	}
+	var res = &department.DepartmentMessage{}
+	copier.Copy(res, dp)
+	return res, nil
+}

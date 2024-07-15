@@ -54,4 +54,5 @@ func (*RouterProject) Route(r *gin.Engine) {
 	group.POST("/account", a.account)
 	d := NewDepartment()
 	group.POST("/department", d.department)
+	group.POST("/department/save", d.save)
 }
