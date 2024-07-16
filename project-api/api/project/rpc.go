@@ -11,6 +11,7 @@ import (
 	"my_project/project-grpc/account"
 	"my_project/project-grpc/auth"
 	"my_project/project-grpc/department"
+	"my_project/project-grpc/menu"
 	"my_project/project-grpc/project"
 	"my_project/project-grpc/task"
 )
@@ -20,6 +21,7 @@ var TaskServiceClient task.TaskServiceClient
 var AccountServiceClient account.AccountServiceClient
 var DepartmentServiceClient department.DepartmentServiceClient
 var AuthServiceClient auth.AuthServiceClient
+var MenuServiceClient menu.MenuServiceClient
 
 func InitRpcProjectClient() {
 	etcdRegister := discovery.NewResolver(config.C.EtcdConfig.Addrs, logs.LG)
