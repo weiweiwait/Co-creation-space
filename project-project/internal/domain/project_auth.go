@@ -6,14 +6,19 @@ import (
 	"my_project/project-common/errs"
 	"my_project/project-project/internal/dao"
 	"my_project/project-project/internal/data"
+	"my_project/project-project/internal/database"
 	"my_project/project-project/internal/repo"
 	"my_project/project-project/pkg/model"
+	"strconv"
 	"time"
 )
 
 type ProjectAuthDomain struct {
-	projectAuthRepo repo.ProjectAuthRepo
-	userRpcDomain   *UserRpcDomain
+	projectAuthRepo       repo.ProjectAuthRepo
+	userRpcDomain         *UserRpcDomain
+	projectNodeDomain     *ProjectNodeDomain
+	projectAuthNodeDomain *ProjectAuthNodeDomain
+	accountDomain         *AccountDomain
 }
 
 func (d *ProjectAuthDomain) AuthList(orgCode int64) ([]*data.ProjectAuthDisplay, *errs.BError) {
@@ -48,9 +53,52 @@ func (d *ProjectAuthDomain) AuthListPage(orgCode int64, page int64, pageSize int
 	return pdList, total, nil
 }
 
+func (d *ProjectAuthDomain) AllNodeAndAuth(authId int64) ([]*data.ProjectNodeAuthTree, []string, *errs.BError) {
+	nodeList, err := d.projectNodeDomain.NodeList()
+	if err != nil {
+		return nil, nil, err
+	}
+	checkedList, err := d.projectAuthNodeDomain.AuthNodeList(authId)
+	if err != nil {
+		return nil, nil, err
+	}
+	list := data.ToAuthNodeTreeList(nodeList, checkedList)
+	return list, checkedList, nil
+}
+
+func (d *ProjectAuthDomain) Save(conn database.DbConn, authId int64, nodes []string) *errs.BError {
+	err := d.projectAuthNodeDomain.Save(conn, authId, nodes)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *ProjectAuthDomain) AuthNodes(memberId int64) ([]string, *errs.BError) {
+	account, err := d.accountDomain.FindAccount(memberId)
+	if err != nil {
+		return nil, err
+	}
+	if account == nil {
+		return nil, model.ParamsError
+	}
+	//c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	//defer cancel()
+	authorize := account.Authorize
+	authId, _ := strconv.ParseInt(authorize, 10, 64)
+	authNodeList, dbErr := d.projectAuthNodeDomain.AuthNodeList(authId)
+	if dbErr != nil {
+		return nil, model.DBError
+	}
+	return authNodeList, nil
+}
+
 func NewProjectAuthDomain1() *ProjectAuthDomain {
 	return &ProjectAuthDomain{
-		projectAuthRepo: dao.NewProjectAuthDao(),
-		userRpcDomain:   NewUserRpcDomain(),
+		projectAuthRepo:       dao.NewProjectAuthDao(),
+		userRpcDomain:         NewUserRpcDomain(),
+		projectNodeDomain:     NewProjectNodeDomain(),
+		projectAuthNodeDomain: NewProjectAuthNodeDomain(),
+		accountDomain:         NewAccountDomain(),
 	}
 }
