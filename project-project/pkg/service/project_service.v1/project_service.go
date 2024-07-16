@@ -11,9 +11,9 @@ import (
 	"my_project/project-grpc/user/login"
 	"my_project/project-project/internal/dao"
 	"my_project/project-project/internal/data"
-	"my_project/project-project/internal/data/menu"
 	"my_project/project-project/internal/database"
 	"my_project/project-project/internal/database/tran"
+	"my_project/project-project/internal/domain"
 	"my_project/project-project/internal/repo"
 	"my_project/project-project/internal/rpc"
 	"my_project/project-project/pkg/model"
@@ -32,6 +32,7 @@ type ProjectService struct {
 	taskStagesRepo         repo.TaskStagesRepo
 	projectLogRepo         repo.ProjectLogRepo
 	taskRepo               repo.TaskRepo
+	nodeDomain             *domain.ProjectNodeDomain
 }
 
 func New() *ProjectService {
@@ -45,6 +46,7 @@ func New() *ProjectService {
 		taskStagesRepo:         dao.NewTaskStagesDao(),
 		projectLogRepo:         dao.NewProjectLogDao(),
 		taskRepo:               dao.NewTaskDao(),
+		nodeDomain:             domain.NewProjectNodeDomain(),
 	}
 }
 func (p *ProjectService) Index(context.Context, *project.IndexMessage) (*project.IndexResponse, error) {
@@ -53,7 +55,7 @@ func (p *ProjectService) Index(context.Context, *project.IndexMessage) (*project
 		zap.L().Error("Index db FindMenus error", zap.Error(err))
 		return nil, errs.GrpcError(model.DBError)
 	}
-	childs := menu.CovertChild(pms)
+	childs := data.CovertChild(pms)
 	var mms []*project.MenuMessage
 	copier.Copy(&mms, childs)
 	return &project.IndexResponse{Menus: mms}, nil

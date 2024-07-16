@@ -227,6 +227,22 @@ func (p *HandlerProject) getLogBySelfProject(c *gin.Context) {
 	c.JSON(http.StatusOK, result.Success(list))
 }
 
+func (p *HandlerProject) nodeList(c *gin.Context) {
+	result := &common.Result{}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	response, err := ProjectServiceClient.NodeList(ctx, &project.ProjectRpcMessage{})
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+	}
+	var list []*model.ProjectNodeTree
+	copier.Copy(&list, response.Nodes)
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"nodes": list,
+	}))
+}
+
 func New() *HandlerProject {
 	return &HandlerProject{}
 }
