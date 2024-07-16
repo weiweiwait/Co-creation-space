@@ -21,3 +21,27 @@
 {"level":"INFO","time":"2024-06-23T18:59:04.159+0800","caller":"interceptor/cache.go:47","msg":"/login.service.v1.LoginService/MyOrgList 走了缓存"}
 {"level":"INFO","time":"2024-06-25T11:44:38.849+0800","caller":"midd/log_time.go:16","msg":"/debug/pprof/ 用时 0 ms"}
 {"level":"INFO","time":"2024-06-25T11:44:38.889+0800","caller":"midd/log_time.go:16","msg":"/favicon.ico 用时 0 ms"}
+{"level":"INFO","time":"2024-07-16T17:21:26.132+0800","caller":"midd/log_time.go:16","msg":"/project/project/selfList 用时 0 ms"}
+{"level":"INFO","time":"2024-07-16T17:21:37.395+0800","caller":"midd/log_time.go:16","msg":"/project/project/selfList 用时 0 ms"}
+{"level":"INFO","time":"2024-07-16T17:21:52.482+0800","caller":"midd/log_time.go:16","msg":"/project/organization/_getOrgList 用时 0 ms"}
+{"level":"INFO","time":"2024-07-16T17:22:05.624+0800","caller":"midd/log_time.go:16","msg":"/project/project_template 用时 0 ms"}
+{"level":"INFO","time":"2024-07-16T17:22:46.696+0800","caller":"midd/log_time.go:16","msg":"/project/login 用时 13 ms"}
+{"level":"INFO","time":"2024-07-16T17:24:06.848+0800","caller":"interceptor/cache.go:53","msg":"/login.service.v1.LoginService/MyOrgList 放入缓存"}
+{"level":"INFO","time":"2024-07-16T17:24:06.848+0800","caller":"midd/log_time.go:16","msg":"/project/organization/_getOrgList 用时 2 ms"}
+{"level":"INFO","time":"2024-07-16T17:28:43.823+0800","caller":"interceptor/cache.go:47","msg":"/login.service.v1.LoginService/MyOrgList 走了缓存"}
+{"level":"INFO","time":"2024-07-16T17:28:43.823+0800","caller":"midd/log_time.go:16","msg":"/project/organization/_getOrgList 用时 1 ms"}
+{"level":"INFO","time":"2024-07-16T17:29:21.101+0800","caller":"interceptor/cache.go:53","msg":"/login.service.v1.LoginService/MyOrgList 放入缓存"}
+{"level":"INFO","time":"2024-07-16T17:29:21.101+0800","caller":"midd/log_time.go:16","msg":"/project/organization/_getOrgList 用时 2 ms"}
+{"level":"INFO","time":"2024-07-16T17:29:25.530+0800","caller":"midd/log_time.go:16","msg":"/project/login 用时 2 ms"}
+{"level":"INFO","time":"2024-07-16T17:30:23.196+0800","caller":"interceptor/cache.go:47","msg":"/login.service.v1.LoginService/MyOrgList 走了缓存"}
+{"level":"INFO","time":"2024-07-16T17:30:23.196+0800","caller":"midd/log_time.go:16","msg":"/project/organization/_getOrgList 用时 1 ms"}
+{"level":"INFO","time":"2024-07-16T17:30:24.427+0800","caller":"interceptor/cache.go:47","msg":"/login.service.v1.LoginService/MyOrgList 走了缓存"}
+{"level":"INFO","time":"2024-07-16T17:30:24.427+0800","caller":"midd/log_time.go:16","msg":"/project/organization/_getOrgList 用时 1 ms"}
+{"level":"ERROR","time":"2024-07-16T17:30:54.572+0800","caller":"login.service.v1/login_service.go:214","msg":"Login  TokenVerify error","error":"token contains an invalid number of segments"}
+{"level":"INFO","time":"2024-07-16T17:30:54.581+0800","caller":"midd/log_time.go:16","msg":"/project/index 用时 9 ms"}
+{"level":"INFO","time":"2024-07-16T17:33:21.568+0800","caller":"interceptor/cache.go:47","msg":"/login.service.v1.LoginService/MyOrgList 走了缓存"}
+{"level":"INFO","time":"2024-07-16T17:33:21.568+0800","caller":"midd/log_time.go:16","msg":"/project/organization/_getOrgList 用时 1 ms"}
+{"level":"INFO","time":"2024-07-16T17:34:23.604+0800","caller":"interceptor/cache.go:53","msg":"/login.service.v1.LoginService/MyOrgList 放入缓存"}
+{"level":"INFO","time":"2024-07-16T17:34:23.604+0800","caller":"midd/log_time.go:16","msg":"/project/organization/_getOrgList 用时 2 ms"}
+{"level":"INFO","time":"2024-07-16T17:34:32.255+0800","caller":"midd/log_time.go:16","msg":"/project/project/selfList 用时 6 ms"}
+{"level":"INFO","time":"2024-07-16T19:28:54.589+0800","caller":"midd/log_time.go:16","msg":"/project/project/selfList 用时 10 ms"}

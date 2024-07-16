@@ -28,6 +28,28 @@ mysql:
   host: 127.0.0.1
   port: 3306
   db: ms_project
+db:
+  separation: true
+  master:
+    name: master
+    username: root
+    password: Fjw20030504
+    host: 127.0.0.1
+    port: 3306
+    db: ms_project
+  slave:
+    - username: root
+      password: root
+      host: 127.0.0.1
+      port: 3306
+      db: ms_project_slave1
+      name: slave1
+    - username: root
+      password: Fjw20030504
+      host: 127.0.0.1
+      port: 3309
+      db: ms_project_slave1
+      name: slave2
 jwt:
   accessExp: 7
   refreshExp: 14
