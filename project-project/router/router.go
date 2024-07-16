@@ -10,6 +10,7 @@ import (
 	"my_project/project-grpc/account"
 	"my_project/project-grpc/auth"
 	"my_project/project-grpc/department"
+	"my_project/project-grpc/menu"
 	"my_project/project-grpc/project"
 	"my_project/project-grpc/task"
 	"my_project/project-project/config"
@@ -18,6 +19,7 @@ import (
 	account_service_v1 "my_project/project-project/pkg/service/account.service.v1"
 	auth_service_v1 "my_project/project-project/pkg/service/auth.service.v1"
 	department_service_v1 "my_project/project-project/pkg/service/department.service.v1"
+	menu_service_v1 "my_project/project-project/pkg/service/menu.service.v1"
 	project_service_v1 "my_project/project-project/pkg/service/project_service.v1"
 	task_service_v1 "my_project/project-project/pkg/service/task.service.v1"
 	"net"
@@ -67,6 +69,7 @@ func RegisterGrpc() *grpc.Server {
 			account.RegisterAccountServiceServer(g, account_service_v1.New())
 			department.RegisterDepartmentServiceServer(g, department_service_v1.New())
 			auth.RegisterAuthServiceServer(g, auth_service_v1.New())
+			menu.RegisterMenuServiceServer(g, menu_service_v1.New())
 		}}
 	s := grpc.NewServer(interceptor.New().Cache())
 	c.RegisterFunc(s)
