@@ -37,6 +37,8 @@ func (d *ProjectAuthDomain) AuthList(orgCode int64) ([]*data.ProjectAuthDisplay,
 	return pdList, nil
 }
 
+//做了个分页
+
 func (d *ProjectAuthDomain) AuthListPage(orgCode int64, page int64, pageSize int64) ([]*data.ProjectAuthDisplay, int64, *errs.BError) {
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
