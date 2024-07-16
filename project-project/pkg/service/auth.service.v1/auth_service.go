@@ -64,3 +64,10 @@ func (a *AuthService) Apply(ctx context.Context, msg *auth.AuthReqMessage) (*aut
 	}
 	return &auth.ApplyResponse{}, nil
 }
+func (a *AuthService) AuthNodesByMemberId(ctx context.Context, msg *auth.AuthReqMessage) (*auth.AuthNodesResponse, error) {
+	list, err := a.projectAuthDomain.AuthNodes(msg.MemberId)
+	if err != nil {
+		return nil, errs.GrpcError(err)
+	}
+	return &auth.AuthNodesResponse{List: list}, nil
+}
