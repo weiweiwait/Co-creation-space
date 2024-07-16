@@ -74,6 +74,7 @@ func (a *HandlerAuth) apply(c *gin.Context) {
 		"checkedList": checkedList,
 	}))
 }
+
 func (a *HandlerAuth) GetAuthNodes(c *gin.Context) ([]string, error) {
 	memberId := c.GetInt64("memberId")
 	msg := &auth.AuthReqMessage{

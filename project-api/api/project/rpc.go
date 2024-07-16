@@ -32,4 +32,10 @@ func InitRpcProjectClient() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	ProjectServiceClient = project.NewProjectServiceClient(conn)
+	TaskServiceClient = task.NewTaskServiceClient(conn)
+	AccountServiceClient = account.NewAccountServiceClient(conn)
+	DepartmentServiceClient = department.NewDepartmentServiceClient(conn)
+	AuthServiceClient = auth.NewAuthServiceClient(conn)
+	MenuServiceClient = menu.NewMenuServiceClient(conn)
+
 }

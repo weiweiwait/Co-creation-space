@@ -19,6 +19,8 @@ func Auth() func(*gin.Context) {
 	return func(c *gin.Context) {
 		result := &common.Result{}
 		uri := c.Request.RequestURI
+		println(444)
+		println(uri)
 		for _, v := range ignores {
 			if strings.Contains(uri, v) {
 				c.Next()
