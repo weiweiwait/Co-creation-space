@@ -50,3 +50,7 @@
 {"level":"ERROR","time":"2024-07-17T11:38:36.811+0800","caller":"config/gorm.go:55","msg":"Use slave err ","error":"Error 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)"}
 {"level":"ERROR","time":"2024-07-17T11:40:33.968+0800","caller":"config/gorm.go:55","msg":"Use slave err ","error":"Error 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)"}
 {"level":"ERROR","time":"2024-07-17T11:42:07.443+0800","caller":"config/gorm.go:55","msg":"Use slave err ","error":"Error 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)"}
+{"level":"ERROR","time":"2024-07-17T13:50:15.484+0800","caller":"config/gorm.go:29","msg":"连接数据库失败 ","error":"dial tcp 127.0.0.1:3307: connect: connection refused"}
+{"level":"ERROR","time":"2024-07-17T13:55:19.209+0800","caller":"config/gorm.go:55","msg":"Use slave err ","error":"dial tcp 127.0.0.1:33061: connect: connection refused"}
+{"level":"ERROR","time":"2024-07-17T13:59:48.475+0800","caller":"config/gorm.go:30","msg":"连接数据库失败 ","error":"dial tcp 127.0.0.1:33061: connect: connection refused"}
+{"level":"ERROR","time":"2024-07-17T14:00:17.595+0800","caller":"config/gorm.go:30","msg":"连接数据库失败 ","error":"dial tcp 127.0.0.1:33061: connect: connection refused"}
