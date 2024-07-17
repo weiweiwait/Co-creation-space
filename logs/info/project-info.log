@@ -52,3 +52,5 @@
 {"level":"ERROR","time":"2024-07-17T13:55:19.209+0800","caller":"config/gorm.go:55","msg":"Use slave err ","error":"dial tcp 127.0.0.1:33061: connect: connection refused"}
 {"level":"ERROR","time":"2024-07-17T13:59:48.475+0800","caller":"config/gorm.go:30","msg":"连接数据库失败 ","error":"dial tcp 127.0.0.1:33061: connect: connection refused"}
 {"level":"ERROR","time":"2024-07-17T14:00:17.595+0800","caller":"config/gorm.go:30","msg":"连接数据库失败 ","error":"dial tcp 127.0.0.1:33061: connect: connection refused"}
+{"level":"INFO","time":"2024-07-17T14:22:05.363+0800","caller":"midd/log_time.go:16","msg":"/debug/pprof/ 用时 0 ms"}
+{"level":"INFO","time":"2024-07-17T14:22:05.379+0800","caller":"midd/log_time.go:16","msg":"/favicon.ico 用时 0 ms"}

@@ -67,3 +67,11 @@ services:
     ports:
       - 8080:8080
       - 8881:8881
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+    restart: always
+    networks:
+      - mall
