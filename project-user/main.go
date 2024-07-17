@@ -2,15 +2,24 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	"log"
 	srv "my_project/project-common"
 	"my_project/project-common/logs"
 	"my_project/project-user/config"
 	"my_project/project-user/router"
+	"my_project/project-user/tracing"
 )
 
 func main() {
 	r := gin.Default()
+	tp, tpErr := tracing.JaegerTraceProvider()
+	if tpErr != nil {
+		log.Fatal(tpErr)
+	}
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	lc := &logs.LogConfig{
 		DebugFileName: "/home/fjw/GolandProjects/my_project/logs/debug/project-debug.log",
 		InfoFileName:  "/home/fjw/GolandProjects/my_project/logs/info/project-info.log",
