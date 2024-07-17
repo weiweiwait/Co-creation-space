@@ -1,78 +1,105 @@
 version: '3'
 services:
-  mysql:
-    container_name: mysql8
-    image: mysql:${MYSQL_VERSION}
-    restart: always
+#  mysql:
+#    container_name: mysql8
+#    image: mysql:${MYSQL_VERSION}
+#    restart: always
+#    ports:
+#      - 3309:3306
+#    environment:
+#      TZ: Asia/Shanghai
+#      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: msproject
+#    volumes:
+#      - ${MYSQL_DIR}/data:/var/lib/mysql
+#      - ${MYSQL_DIR}/conf:/etc/mysql/conf.d/
+#      - ${MYSQL_DIR}/logs:/logs
+#    command:
+#      --default-authentication-plugin=mysql_native_password
+#      --character-set-server=utf8mb4
+#      --collation-server=utf8mb4_general_ci
+#      --explicit_defaults_for_timestamp=true
+#      --lower_case_table_names=1
+#  Redis:
+#    container_name: redis6
+#    image: redis:${REDIS_VERSION}
+#    restart: always
+#    volumes:
+#      - ${REDIS_DIR}/data:/data
+#      - ${REDIS_DIR}/conf/redis.conf:/etc/redis/redis.conf
+#    ports:
+#      - ${REDIS_PORT}:6379
+#    command: redis-server /etc/redis/redis.conf
+#  Etcd:
+#    container_name: etcd3
+#    image: bitnami/etcd:${ETCD_VERSION}
+#    deploy:
+#      replicas: 1
+#      restart_policy:
+#        condition: on-failure
+#    environment:
+#      - ALLOW_NONE_AUTHENTICATION=yes
+#    privileged: true
+#    volumes:
+#      - ${ETCD_DIR}/data:/bitnami/etcd/data
+#    ports:
+#      - ${ETCD_PORT}:2379
+#      - 2380:2380
+#  Nacos:
+#    container_name: nacos-standalone
+#    image: nacos/nacos-server:v2.2.0
+#    restart: always
+#    environment:
+#      - MODE=standalone
+#      - JVM_XMS=512m
+#      - JVM_MAX=512m
+#      - JVM_XMN=256m
+#    privileged: true
+#    volumes:
+#      - ${NACOS_DIR}/data:/home/nacos/data
+#    ports:
+#      - 8848:8848
+#      - 9848:9848
+#      - 9849:9849
+#  Project-User:
+#    container_name: project-user
+#    image: project-user:latest
+#    ports:
+#      - 8080:8080
+#      - 8881:8881
+#  jaeger:
+#    container_name: jaeger
+#    image: jaegertracing/all-in-one:latest
+#    ports:
+#      - "16686:16686"
+#      - "14268:14268"
+#    restart: always
+#    networks:
+#      - mall
+  kafdrop:
+    container_name: kafdrop
+    image: obsidiandynamics/kafdrop
+    restart: "no"
     ports:
-      - 3309:3306
+      - "9000:9000"
     environment:
-      TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: msproject
-    volumes:
-      - ${MYSQL_DIR}/data:/var/lib/mysql
-      - ${MYSQL_DIR}/conf:/etc/mysql/conf.d/
-      - ${MYSQL_DIR}/logs:/logs
-    command:
-      --default-authentication-plugin=mysql_native_password
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_general_ci
-      --explicit_defaults_for_timestamp=true
-      --lower_case_table_names=1
-  Redis:
-    container_name: redis6
-    image: redis:${REDIS_VERSION}
-    restart: always
-    volumes:
-      - ${REDIS_DIR}/data:/data
-      - ${REDIS_DIR}/conf/redis.conf:/etc/redis/redis.conf
+      KAFKA_BROKERCONNECT: "kafka:29092"
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+    depends_on:
+      - "kafka"
+  kafka:
+    container_name: kafka
+    image: obsidiandynamics/kafka
+    restart: "no"
     ports:
-      - ${REDIS_PORT}:6379
-    command: redis-server /etc/redis/redis.conf
-  Etcd:
-    container_name: etcd3
-    image: bitnami/etcd:${ETCD_VERSION}
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
+      - "2181:2181"
+      - "9092:9092"
     environment:
-      - ALLOW_NONE_AUTHENTICATION=yes
-    privileged: true
-    volumes:
-      - ${ETCD_DIR}/data:/bitnami/etcd/data
-    ports:
-      - ${ETCD_PORT}:2379
-      - 2380:2380
-  Nacos:
-    container_name: nacos-standalone
-    image: nacos/nacos-server:v2.2.0
-    restart: always
-    environment:
-      - MODE=standalone
-      - JVM_XMS=512m
-      - JVM_MAX=512m
-      - JVM_XMN=256m
-    privileged: true
-    volumes:
-      - ${NACOS_DIR}/data:/home/nacos/data
-    ports:
-      - 8848:8848
-      - 9848:9848
-      - 9849:9849
-  Project-User:
-    container_name: project-user
-    image: project-user:latest
-    ports:
-      - 8080:8080
-      - 8881:8881
-  jaeger:
-    container_name: jaeger
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - "16686:16686"
-      - "14268:14268"
-    restart: always
-    networks:
-      - mall
+      KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_ZOOKEEPER_SESSION_TIMEOUT: "6000"
+      KAFKA_RESTART_ATTEMPTS: "10"
+      KAFKA_RESTART_DELAY: "5"
+      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
