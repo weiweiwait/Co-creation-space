@@ -47,3 +47,6 @@
 {"level":"INFO","time":"2024-07-16T17:34:23.604+0800","caller":"midd/log_time.go:16","msg":"/project/organization/_getOrgList 用时 2 ms"}
 {"level":"INFO","time":"2024-07-16T17:34:32.255+0800","caller":"midd/log_time.go:16","msg":"/project/project/selfList 用时 6 ms"}
 {"level":"INFO","time":"2024-07-16T19:28:54.589+0800","caller":"midd/log_time.go:16","msg":"/project/project/selfList 用时 10 ms"}
+{"level":"ERROR","time":"2024-07-17T11:38:36.811+0800","caller":"config/gorm.go:55","msg":"Use slave err ","error":"Error 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)"}
+{"level":"ERROR","time":"2024-07-17T11:40:33.968+0800","caller":"config/gorm.go:55","msg":"Use slave err ","error":"Error 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)"}
+{"level":"ERROR","time":"2024-07-17T11:42:07.443+0800","caller":"config/gorm.go:55","msg":"Use slave err ","error":"Error 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)"}

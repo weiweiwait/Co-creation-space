@@ -39,7 +39,7 @@ db:
     db: ms_project
   slave:
     - username: root
-      password: root
+      password: Fjw20030504
       host: 127.0.0.1
       port: 3306
       db: ms_project_slave1
@@ -47,7 +47,7 @@ db:
     - username: root
       password: Fjw20030504
       host: 127.0.0.1
-      port: 3309
+      port: 3306
       db: ms_project_slave1
       name: slave2
 jwt:
