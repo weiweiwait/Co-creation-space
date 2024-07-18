@@ -5,7 +5,9 @@ import (
 	"github.com/jinzhu/copier"
 	"my_project/project-common/encrypts"
 	"my_project/project-common/errs"
+	"my_project/project-common/kk"
 	"my_project/project-grpc/department"
+	"my_project/project-project/config"
 	"my_project/project-project/internal/dao"
 	"my_project/project-project/internal/database/tran"
 	"my_project/project-project/internal/domain"
@@ -42,8 +44,14 @@ func (d *DepartmentService) List(ctx context.Context, msg *department.Department
 	}
 	var list []*department.DepartmentMessage
 	copier.Copy(&list, dps)
+	config.SendLog(kk.Info("List", "DepartmentService.List", kk.FieldMap{
+		"organizationCode":     organizationCode,
+		"parentDepartmentCode": parentDepartmentCode,
+		"page":                 msg.Page,
+	}))
 	return &department.ListDepartmentMessage{List: list, Total: total}, nil
 }
+
 func (d *DepartmentService) Save(ctx context.Context, msg *department.DepartmentReqMessage) (*department.DepartmentMessage, error) {
 	organizationCode := encrypts.DecryptNoErr(msg.OrganizationCode)
 	var departmentCode int64

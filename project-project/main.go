@@ -27,8 +27,11 @@ func main() {
 	gc := router.RegisterGrpc()
 	//grpc服务注册到etcd
 	router.RegisterEtcdServer()
+	//初始化kafka
+	c := config.InitKafkaWriter()
 	stop := func() {
 		gc.Stop()
+		c()
 	}
 
 	srv.Run(r, config.C.SC.Name, config.C.SC.Addr, stop)
