@@ -124,6 +124,60 @@ func (t *TaskService) MemberProjectList(co context.Context, msg *task.TaskReqMes
 	}
 	return &task.MemberProjectResponse{List: list, Total: total}, nil
 }
+func (t *TaskService) TaskList(ctx context.Context, msg *task.TaskReqMessage) (*task.TaskListResponse, error) {
+	stageCode := encrypts.DecryptNoErr(msg.StageCode)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	taskList, err := t.taskRepo.FindTaskByStageCode(c, int(stageCode))
+	if err != nil {
+		zap.L().Error("project task TaskList FindTaskByStageCode error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	var taskDisplayList []*data.TaskDisplay
+	var mIds []int64
+	for _, v := range taskList {
+		display := v.ToTaskDisplay()
+		if v.Private == 1 {
+			//代表隐私模式
+			taskMember, err := t.taskRepo.FindTaskMemberByTaskId(ctx, v.Id, msg.MemberId)
+			if err != nil {
+				zap.L().Error("project task TaskList taskRepo.FindTaskMemberByTaskId error", zap.Error(err))
+				return nil, errs.GrpcError(model.DBError)
+			}
+			if taskMember != nil {
+				display.CanRead = model.CanRead
+			} else {
+				display.CanRead = model.NoCanRead
+			}
+		}
+		taskDisplayList = append(taskDisplayList, display)
+		mIds = append(mIds, v.AssignTo)
+	}
+	if mIds == nil || len(mIds) <= 0 {
+		return &task.TaskListResponse{List: nil}, nil
+	}
+	// in ()
+	messageList, err := rpc.LoginServiceClient.FindMemInfoByIds(ctx, &login.UserMessage{MIds: mIds})
+	if err != nil {
+		zap.L().Error("project task TaskList LoginServiceClient.FindMemInfoByIds error", zap.Error(err))
+		return nil, err
+	}
+	memberMap := make(map[int64]*login.MemberMessage)
+	for _, v := range messageList.List {
+		memberMap[v.Id] = v
+	}
+	for _, v := range taskDisplayList {
+		message := memberMap[encrypts.DecryptNoErr(v.AssignTo)]
+		e := data.Executor{
+			Name:   message.Name,
+			Avatar: message.Avatar,
+		}
+		v.Executor = e
+	}
+	var taskMessageList []*task.TaskMessage
+	copier.Copy(&taskMessageList, taskDisplayList)
+	return &task.TaskListResponse{List: taskMessageList}, nil
+}
 func (t *TaskService) SaveTask(ctx context.Context, msg *task.TaskReqMessage) (*task.TaskMessage, error) {
 	//1. 检查业务逻辑
 	if msg.Name == "" {

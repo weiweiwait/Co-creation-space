@@ -42,13 +42,13 @@ db:
       password: Fjw20030504
       host: 127.0.0.1
       port: 3306
-      db: ms_project_slave1
+      db: ms_project
       name: slave1
     - username: root
       password: Fjw20030504
       host: 127.0.0.1
       port: 3306
-      db: ms_project_slave1
+      db: ms_project
       name: slave2
 jwt:
   accessExp: 7
