@@ -2,3 +2,4 @@ docker run -d --name="elasticsearch" -p 9200:9200 -p 9300 -p 9300 -p 5601:5601 -
 
 docker run -it --name="kibana" -p 5602:5601 --link elasticsearch:elasticsearch kibana:7.10.1
 sudo docker cp ./elasticsearch-analysis-ik-7.10.1.zip elasticsearch:/usr/share/elasticsearch/plugins/ik
+sudo docker run -d   --name logstash   --link elasticsearch:elasticsearch   -p 5044:5044   -v /home/fjw/GolandProjects/my_project/logstash.conf:/usr/share/logstash/pipeline/logstash.conf   -v /home/fjw/GolandProjects/my_project/logstash.yml:/usr/share/logstash/config/logstash.yml   -v /home/fjw/GolandProjects/my_project/log:/home/public/   logstash:7.10.1

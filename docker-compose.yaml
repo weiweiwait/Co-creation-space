@@ -103,33 +103,51 @@ services:
       KAFKA_RESTART_ATTEMPTS: "10"
       KAFKA_RESTART_DELAY: "5"
       ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
-  es:
-    container_name: es
-    image: elasticsearch:8.6.0
+#  es:
+#    container_name: es
+#    image: elasticsearch:8.6.0
+#    volumes:
+#      - /usr/local/elasticsearch/data:/usr/local/elasticsearch/data
+#      - /usr/local/elasticsearch/logs:/usr/local/elasticsearch/logs
+#      - /usr/local/plugins:/usr/local/elasticsearch/plugins
+#    ports:
+#      - 9200:9200
+#      - 9300:9300
+#    environment:
+#      - node.name=es
+#      - cluster.name=elasticsearch
+#      - discovery.type=single-node
+#      - bootstrap.memory_lock=true
+#      - xpack.security.enabled=false
+#      - xpack.security.http.ssl.enabled=false
+#      - xpack.security.transport.ssl.enabled=false
+#    privileged: true
+#  kibana:
+#      image: kibana:8.6.0
+#      container_name: kibana
+#      depends_on:
+#        - es
+#      environment:
+#        SERVER_NAME: kibana
+#        SERVER_HOST: "0.0.0.0"
+#        ELASTICSEARCH_HOSTS: http://es:9200
+#      ports:
+#        - 5601:5601
+  logstash:
+    image: logstash:7.10.0
+    container_name: logstash
     volumes:
-      - /usr/local/elasticsearch/data:/usr/local/elasticsearch/data
-      - /usr/local/elasticsearch/logs:/usr/local/elasticsearch/logs
-      - /usr/local/plugins:/usr/local/elasticsearch/plugins
+      - /home/fjw/GolandProjects/my_project/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - /home/fjw/GolandProjects/my_project/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - /home/fjw/GolandProjects/my_project/log/:/home/public/
     ports:
-      - 9200:9200
-      - 9300:9300
+      - '5044:5044'
+      - '50000:50000/tcp'
+      - '50000:50000/udp'
+      - '9600:9600'
     environment:
-      - node.name=es
-      - cluster.name=elasticsearch
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - xpack.security.enabled=false
-      - xpack.security.http.ssl.enabled=false
-      - xpack.security.transport.ssl.enabled=false
-    privileged: true
-  kibana:
-      image: kibana:8.6.0
-      container_name: kibana
-      depends_on:
-        - es
-      environment:
-        SERVER_NAME: kibana
-        SERVER_HOST: "0.0.0.0"
-        ELASTICSEARCH_HOSTS: http://es:9200
-      ports:
-        - 5601:5601
+      LS_JAVA_OPTS: -Xms1024m -Xmx1024m
+      TZ: Asia/Shanghai
+      MONITORING_ENABLED: false
+    depends_on:
+      - elasticsearch
