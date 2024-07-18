@@ -133,21 +133,32 @@ services:
 #        ELASTICSEARCH_HOSTS: http://es:9200
 #      ports:
 #        - 5601:5601
-  logstash:
-    image: logstash:7.10.0
-    container_name: logstash
-    volumes:
-      - /home/fjw/GolandProjects/my_project/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-      - /home/fjw/GolandProjects/my_project/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - /home/fjw/GolandProjects/my_project/log/:/home/public/
+#  logstash:
+#    image: logstash:7.10.0
+#    container_name: logstash
+#    volumes:
+#      - /home/fjw/GolandProjects/my_project/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+#      - /home/fjw/GolandProjects/my_project/logstash.yml:/usr/share/logstash/config/logstash.yml
+#      - /home/fjw/GolandProjects/my_project/log/:/home/public/
+#    ports:
+#      - '5044:5044'
+#      - '50000:50000/tcp'
+#      - '50000:50000/udp'
+#      - '9600:9600'
+#    environment:
+#      LS_JAVA_OPTS: -Xms1024m -Xmx1024m
+#      TZ: Asia/Shanghai
+#      MONITORING_ENABLED: false
+#    depends_on:
+#      - elasticsearch
+  minio:
+    container_name: minio
+    image: bitnami/minio:2023
     ports:
-      - '5044:5044'
-      - '50000:50000/tcp'
-      - '50000:50000/udp'
-      - '9600:9600'
+      - '9009:9000'
+      - '9001:9001'
     environment:
-      LS_JAVA_OPTS: -Xms1024m -Xmx1024m
-      TZ: Asia/Shanghai
-      MONITORING_ENABLED: false
-    depends_on:
-      - elasticsearch
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=admin123456
+    volumes:
+      - '/home/fjw/msproject-data/minio/data:/data'

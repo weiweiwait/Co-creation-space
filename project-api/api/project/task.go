@@ -11,6 +11,7 @@ import (
 	common "my_project/project-common"
 	"my_project/project-common/errs"
 	"my_project/project-common/fs"
+	"my_project/project-common/min"
 	"my_project/project-common/tms"
 	"my_project/project-grpc/task"
 	"net/http"
@@ -353,16 +354,48 @@ func (t *HandlerTask) uploadFiles(c *gin.Context) {
 	//假设只上传一个文件
 	uploadFile := file["file"][0]
 	//第一种 没有达成分片的条件
-	key := ""
+	//key := ""
+	//min.New("", "", "", false)
+	key := "msproject/" + req.Filename
+	minioClient, err := min.New(
+		"localhost:9009",
+		"0RnUy2AUBZrpsI3U",
+		"9lHE5HpEUwHni1vxaFnf9BosILz79nd3",
+		false)
+	if err != nil {
+		c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
+		return
+	}
+	bucketName := "msproject"
 	if req.TotalChunks == 1 {
-		//不分片
-		path := "upload/" + req.ProjectCode + "/" + req.TaskCode + "/" + tms.FormatYMD(time.Now())
-		if !fs.IsExist(path) {
-			os.MkdirAll(path, os.ModePerm)
+		////不分片
+		//path := "upload/" + req.ProjectCode + "/" + req.TaskCode + "/" + tms.FormatYMD(time.Now())
+		//if !fs.IsExist(path) {
+		//	os.MkdirAll(path, os.ModePerm)
+		//}
+		//dst := path + "/" + req.Filename
+		//key = dst
+		//err := c.SaveUploadedFile(uploadFile, dst)
+		//if err != nil {
+		//	c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
+		//	return
+		//}
+		open, err := uploadFile.Open()
+		if err != nil {
+			c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
+			return
 		}
-		dst := path + "/" + req.Filename
-		key = dst
-		err := c.SaveUploadedFile(uploadFile, dst)
+		defer open.Close()
+		buf := make([]byte, req.CurrentChunkSize)
+		open.Read(buf)
+		_, err = minioClient.Put(
+			context.Background(),
+			bucketName,
+			req.Filename,
+			buf,
+			int64(req.TotalSize),
+			uploadFile.Header.Get("Content-Type"),
+		)
 		if err != nil {
 			c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
 			return
@@ -401,7 +434,8 @@ func (t *HandlerTask) uploadFiles(c *gin.Context) {
 	//调用服务 存入file表
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	fileUrl := "http://localhost/" + key
+	//fileUrl := "http://localhost/" + key
+	fileUrl := "http://localhost:9009/" + key
 	msg := &task.TaskFileReqMessage{
 		TaskCode:         req.TaskCode,
 		ProjectCode:      req.ProjectCode,
