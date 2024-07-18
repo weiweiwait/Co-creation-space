@@ -10,13 +10,12 @@ import (
 	_ "my_project/project-api/pkg/model/user"
 	common "my_project/project-common"
 	"my_project/project-common/errs"
-	"my_project/project-common/fs"
 	"my_project/project-common/min"
 	"my_project/project-common/tms"
 	"my_project/project-grpc/task"
 	"net/http"
-	"os"
 	"path"
+	"strconv"
 	"time"
 )
 
@@ -402,17 +401,35 @@ func (t *HandlerTask) uploadFiles(c *gin.Context) {
 		}
 	}
 	if req.TotalChunks > 1 {
+		////分片上传 无非就是先把每次的存储起来 追加就可以了
+		//path := "upload/" + req.ProjectCode + "/" + req.TaskCode + "/" + tms.FormatYMD(time.Now())
+		//if !fs.IsExist(path) {
+		//	os.MkdirAll(path, os.ModePerm)
+		//}
+		//fileName := path + "/" + req.Identifier
+		//openFile, err := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+		//if err != nil {
+		//	c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
+		//	return
+		//}
+		//open, err := uploadFile.Open()
+		//if err != nil {
+		//	c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
+		//	return
+		//}
+		//defer open.Close()
+		//buf := make([]byte, req.CurrentChunkSize)
+		//open.Read(buf)
+		//openFile.Write(buf)
+		//openFile.Close()
+		//key = fileName
+		//if req.TotalChunks == req.ChunkNumber {
+		//	//最后一个分片了
+		//	newPath := path + "/" + req.Filename
+		//	key = newPath
+		//	os.Rename(fileName, newPath)
+		//}
 		//分片上传 无非就是先把每次的存储起来 追加就可以了
-		path := "upload/" + req.ProjectCode + "/" + req.TaskCode + "/" + tms.FormatYMD(time.Now())
-		if !fs.IsExist(path) {
-			os.MkdirAll(path, os.ModePerm)
-		}
-		fileName := path + "/" + req.Identifier
-		openFile, err := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
-		if err != nil {
-			c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
-			return
-		}
 		open, err := uploadFile.Open()
 		if err != nil {
 			c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
@@ -421,14 +438,26 @@ func (t *HandlerTask) uploadFiles(c *gin.Context) {
 		defer open.Close()
 		buf := make([]byte, req.CurrentChunkSize)
 		open.Read(buf)
-		openFile.Write(buf)
-		openFile.Close()
-		key = fileName
+		formatInt := strconv.FormatInt(int64(req.ChunkNumber), 10)
+		_, err = minioClient.Put(
+			context.Background(),
+			bucketName,
+			req.Filename+"_"+formatInt,
+			buf,
+			int64(req.CurrentChunkSize),
+			uploadFile.Header.Get("Content-Type"),
+		)
+		if err != nil {
+			c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
+			return
+		}
 		if req.TotalChunks == req.ChunkNumber {
-			//最后一个分片了
-			newPath := path + "/" + req.Filename
-			key = newPath
-			os.Rename(fileName, newPath)
+			//最后一个分片了 合并
+			_, err := minioClient.Compose(context.Background(), bucketName, req.Filename, req.TotalChunks)
+			if err != nil {
+				c.JSON(http.StatusOK, result.Fail(-999, err.Error()))
+				return
+			}
 		}
 	}
 	//调用服务 存入file表
