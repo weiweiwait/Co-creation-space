@@ -32,6 +32,7 @@ func New() *CacheInterceptor {
 
 func (c *CacheInterceptor) Cache() grpc.ServerOption {
 	return grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		c = New()
 		respType := c.cacheMap[info.FullMethod]
 		if respType == nil {
 			return handler(ctx, req)
