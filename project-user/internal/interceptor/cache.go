@@ -37,7 +37,7 @@ func (c *CacheInterceptor) Cache() grpc.ServerOption {
 		if respType == nil {
 			return handler(ctx, req)
 		}
-		//先查询是否有缓存 有的话 直接返回 无 先请求 然后存入缓存
+		//先查询是否有缓存有的话直接返回无先请求然后存入缓存
 		con, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 		marshal, _ := json.Marshal(req)

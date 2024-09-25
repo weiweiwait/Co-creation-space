@@ -69,3 +69,4 @@
 {"level":"INFO","time":"2024-07-18T09:14:01.867+0800","caller":"midd/log_time.go:16","msg":"/project/login 用时 2 ms"}
 {"level":"INFO","time":"2024-07-18T14:37:35.710+0800","caller":"midd/log_time.go:16","msg":"/project/login 用时 1 ms"}
 {"level":"INFO","time":"2024-07-18T14:37:53.895+0800","caller":"midd/log_time.go:16","msg":"/project/login 用时 0 ms"}
+{"level":"INFO","time":"2024-09-20T21:47:51.763+0800","caller":"midd/log_time.go:16","msg":"/project/login 用时 36 ms"}
